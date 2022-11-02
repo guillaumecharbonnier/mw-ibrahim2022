@@ -1,0 +1,31 @@
+---
+title: "ANTARES"
+author: "[Guillaume Charbonnier](https://guillaumecharbonnier.github.io/)"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::gitbook:
+    css: 
+      "style.css"
+    split_by: rmd
+    toc_depth: 6
+    download: ["epub", "mobi"]
+    config:
+      sharing: false
+---
+
+```{r indexLoadEnv, cache=FALSE, include=FALSE}
+source("loadEnv.R")
+```
+
+# Abstract
+
+Meta-analysis of transcriptomics datasets (microarrays + RNA-Seq) available in the literature for the study of the effect of Fluoxetine in rodents (rat + mouse). Differential expression analysis is produced for each dataset independently, then deregulated genes are converted to their closest human ortholog for cross-specie comparisons with a focus on genes with putative similar response in human.
+
+Directed acyclic graph of the [ANTARES workflow](https://viewer.diagrams.net/?highlight=0000ff&edit=_blank&layers=1&nav=1&title=Antares.drawio#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D1r_lF43iI0F1bBIWi-Gvx5Yp4qMwZ0KLY%26export%3Ddownload)
+
+# Time-tracking
+
+* [Summary](https://clockify.me/shared/60b87f09959c3e63c277d7dc)
+* [Detailed](https://clockify.me/shared/60b87faa959c3e63c277d7de)
+
+Target for current purchase order: 240 hours

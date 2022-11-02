@@ -1,0 +1,87 @@
+### Rat RNA-Seq {#resultsIntegrationRatRna}
+
+```{r resultsIntegrationRatRna, fig.height=20, fig.width = 8, fig.cap="Alphabetically-sorted genes significant in at least one comparison (padj < 0.05). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+# First two columns are removed because they are specie specific
+d <- rbind(
+  dea_res$rnaseq$SRP131063$FluoxetineVsSalineForStressed,
+  dea_res$rnaseq$SRP084288$FluoxetineVsControlWithTissueAsCovariate,
+  dea_res$rnaseq$SRP056481$FluoxetineVsMethylcellulose
+)
+d$design <- paste(
+  d$project,
+  d$comparison,
+  sep = "-"
+)
+
+# Working on a subset because not all genes have a padj from Deseq2
+ds <- d[!is.na(d$padj), ]
+genes_to_display <- unique(sort(ds[ds$padj < 0.05, "rat_symbol"]))
+
+pl <- list() # plot list
+gl <- list() # gene list
+n_cols <- 4
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$rat_symbol %in% gl[[n]], ],
+    y_col = "rat_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```
+
+```{r resultsIntegrationRatRnaConsensusScore, fig.height=20, fig.width = 8, fig.cap="Consensus-sorted genes significant in at least one comparison (padj < 0.05). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+consensusScore <- function(gene, df) {
+  df$pvalue[is.na(df$pvalue)] <- 1
+  sum(
+    sign(
+      df[
+        df$rat_symbol %in% gene & df$pvalue < 0.05,
+        "log2FoldChange"
+      ]
+    )
+  )
+}
+
+consensus_scores <- sapply(
+  genes_to_display,
+  consensusScore,
+  df = d
+)
+genes_to_display <- names(sort(consensus_scores))
+
+d$hugo_symbol <- factor(
+  d$hugo_symbol,
+  levels = genes_to_display
+)
+
+pl <- list() # plot list
+gl <- list() # gene list
+n_cols <- 4
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$rat_symbol %in% gl[[n]], ],
+    y_col = "rat_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```

@@ -1,0 +1,59 @@
+#### Check Sex {#resultsRnaseqSRP084288CheckSex}
+
+Before doing the analysis on this dataset, we want to check the sex of these samples.
+
+```{r resultsRnaseqSRP084288CheckSex}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP084288_raw[, -1],
+  colData = SRP084288_metadata,
+  rowData = SRP084288_genes,
+  design = ~ 1
+)
+vsd <- vst(dds)
+# d <- fread(
+#   file.path(
+#     mw_from_rmd,
+#     "inp/GSE109445_All_processed_data.txt.gz"
+#   )
+# )
+
+male_genes <- c(
+  "Uty",
+  "Kdm5d",
+  "Ddx3y",
+  "Eif2s3y"
+)
+female_genes <- c(
+  "Xist", #not found
+  "AABR07039579.1", #Xist for Rat...
+  "Kdm6a",
+  "Ddx3x",
+  "Eif2s3x" #not found
+)
+female_alias_genes <- c(
+  "Ftx",
+  "Jpx",
+  "Eif2s3"
+)
+vsd_sex_genes <- vsd[
+  rowData(vsd)$Gene.name %in% c(male_genes, female_genes, female_alias_genes),
+]
+rowData(vsd_sex_genes)$sex_annot <- ifelse(
+  rowData(vsd_sex_genes)$Gene.name %in% male_genes,
+  "male gene",
+  ifelse(
+    rowData(vsd_sex_genes)$Gene.name %in% female_genes,
+    "female_gene",
+    "alias"
+  )
+)
+```
+
+```{r resultsRnaseqSRP084288CheckSexHeatmap}
+set.seed(12)
+Heatmap(
+  assay(vsd_sex_genes),
+  row_labels = rowData(vsd_sex_genes)$Gene.name,
+  right_annotation = rowAnnotation(sex_annot = rowData(vsd_sex_genes)$sex_annot)
+)
+```

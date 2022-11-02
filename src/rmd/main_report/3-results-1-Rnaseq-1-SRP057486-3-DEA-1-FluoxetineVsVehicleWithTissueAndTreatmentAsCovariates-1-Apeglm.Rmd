@@ -1,0 +1,48 @@
+#### DEA {#resultsRnaseqSRP057486DEA}
+
+##### Fluoxetine VS Vehicle with Tissue and Treatment as covariates {#resultsRnaseqSRP057486FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates}
+
+###### Apgelm shrinkage {#resultsRnaseqSRP057486FluoxetineVsVehicleWithTissueAndTreatmentAsCovariatesApeglm}
+
+```{r resultsRnaseqSRP057486FluoxetineVsVehicleWithTissueAndTreatmentAsCovariatesComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP057486_raw[, -1],
+  colData = SRP057486_metadata,
+  rowData = SRP057486_genes,
+  design = ~ tissue + treatment + drug
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- DESeq(dds)
+resultsNames(dds) # lists the coefficients
+
+# vsd <- varianceStabilizingTransformation(dds)
+
+res <- lfcShrink(
+  dds,
+  coef = "drug_Fluoxetine_vs_Vehicle",
+  type = "apeglm"
+)
+```
+
+```{r resultsRnaseqSRP057486FluoxetineVsVehicleWithTissueAndTreatmentAsCovariatesKnitPostDeseq2, results="asis", cache=FALSE}
+knitPostDeseq2Template(
+  FC_cutoff = 0.5,
+  cols = mouse_cols
+)
+
+res$project <- "SRP057486"
+res$comparison <- "FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates"
+dea_res$rnaseq$SRP057486 <- list()
+dea_res$rnaseq$SRP057486$FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates <- cbind(
+  mcols(dds)[, 1:4],
+  res
+)
+```
+
+

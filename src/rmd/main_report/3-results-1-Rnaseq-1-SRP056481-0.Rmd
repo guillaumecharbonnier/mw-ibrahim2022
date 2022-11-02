@@ -1,0 +1,92 @@
+### SRP056481 {#resultsRnaseqSRP056481}
+
+```{r resultsRnaseqSRP056481}
+smi <- "out/r/tidy_featureCounts/subread/featureCounts_-O_-t_exon_-g_merge_gene_id_name_gtf-Rnor6-merge-attr-retrieve-ensembl_bam-Rnor6-SRP056481_raw.tsv"
+linkSmiToRmdAndBookDir(smi)
+SRP056481_raw <- fread(smi)
+produceDataTableWithButtons(head(SRP056481_raw))
+
+smi <- "out/py/retrieve_sra_metadata/SRP056481.xlsx"
+linkSmiToRmdAndBookDir(smi)
+SRP056481_metadata <- read_excel(smi)
+produceDataTableWithButtons(SRP056481_metadata)
+
+SRP056481_genes <- SRP056481_raw[, 1]
+SRP056481_genes[
+  ,
+  c(
+    "rat_ensembl_gene_id",
+    #"rat_symbol"
+    "Gene.name"
+  ) := tstrsplit(
+    Geneid,
+    "|",
+    fixed = TRUE
+  )
+]
+# Some ENSEMBLE gene have "." as gene.name
+SRP056481_genes[
+  Gene.name %like% "^\\.$",
+  Gene.name := rat_ensembl_gene_id
+]
+SRP056481_genes[, Geneid := NULL]
+
+# rat_to_human_orths <- gorth(
+#   SRP056481_genes$rat_ensembl_gene_id,
+#   source_organism = "rnorvegicus",
+#   target_organism = "hsapiens",
+#   filter_na = FALSE
+# )
+rat_to_human_best_orth <- gorth(
+  SRP056481_genes$rat_ensembl_gene_id,
+  source_organism = "rnorvegicus",
+  target_organism = "hsapiens",
+  mthreshold = 1,
+  filter_na = FALSE
+)
+
+# There is only a limited number of multiple orthologues:
+# > dim(rat_to_human_orths)
+# [1] 36521     7
+# > dim(rat_to_human_best_orth)
+# [1] 32620     7
+
+rat_to_human_best_orth <- rat_to_human_best_orth[
+  ,
+  !colnames(rat_to_human_best_orth) %in% c(
+    "input_number",
+    "input_ensg",
+    "ensg_number"
+  )
+]
+setnames(
+  rat_to_human_best_orth,
+  old = c(
+    "ortholog_name",
+    "ortholog_ensg"
+  ),
+  new = c(
+    "hugo_symbol",
+    "ensembl_gene_id"
+  )
+)
+
+SRP056481_genes <- merge(
+  SRP056481_genes,
+  rat_to_human_best_orth,
+  by.x = "rat_ensembl_gene_id",
+  by.y = "input",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+row.names(SRP056481_metadata) <- SRP056481_metadata$accession
+
+SRP056481_metadata$treatment <- factor(
+  SRP056481_metadata$treatment,
+  levels = c(
+    "Methylcellulose",
+    "Fluoxetine"
+  )
+)
+```

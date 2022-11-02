@@ -1,0 +1,277 @@
+### To closest human ortholog {#resultsIntegrationToHumanOrtholog}
+
+#### Mouse Fluoxetine VS Control for Stressed in Dentate Gyrus{#resultsIntegrationMouseFluoxetineVsControlForStressed}
+
+This section corresponds to the first meta-analysis requested by El Chérif.
+
+```{r resultsIntegrationMouseFluoxetineVsControlForStressedSettings}
+fig_width <- 34
+fig_height <- 32
+n_cols <- 15
+```
+
+```{r resultsIntegrationMouseFluoxetineVsControlForStressedAlphabet, dependson="resultsIntegrationMouseFluoxetineVsControlForStressedSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Alphabetically-sorted genes significant in at least one comparison (padj < 0.05). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+cols_to_keep <- c(
+  "hugo_symbol",
+  "ensembl_gene_id",
+  "baseMean",
+  "log2FoldChange",
+  "pvalue",
+  "padj",
+  "project",
+  "comparison"
+)
+
+# First two columns are removed because they are specie specific
+d <- rbind(
+  data.frame(dea_res$microarray$GSE43261$FluoxetineResponderVsControl[, cols_to_keep]),
+  data.frame(dea_res$microarray$GSE84185$StressedFluoxetineVsStressedAloneInDentateGyrus[, cols_to_keep]),
+  data.frame(dea_res$microarray$GSE84185$FluoxetineVsControlForStressedResponderInDentateGyrus[, cols_to_keep]),
+  data.frame(dea_res$microarray$Surget2009$FluoxetineVsSalineForStressedInDentateGyrus[, cols_to_keep]),
+  data.frame(dea_res$rnaseq$SRP057486$FluoxetineVsVehicleForBrainCA1StressedSubset[, cols_to_keep])
+)
+
+d <- d[!is.na(d$padj), ]
+d <- d[!d$hugo_symbol %in% "N/A", ]
+
+d$design <- paste(
+  d$project,
+  d$comparison,
+  sep = "-"
+)
+designs <- factor(sort(unique(d$design)))
+design_ids <- paste(
+  as.integer(designs),
+  sub(
+    "-.*$",
+    "",
+    designs
+  ),
+  sep = "-"
+)
+d$design <- mapvalues(
+  d$design,
+  from = designs,
+  to = design_ids
+)
+
+knitr::kable(
+  data.frame(
+    id = design_ids,
+    design = designs
+  ),
+  caption = "Mapping between ids and designs used in the integration plots below"
+)
+
+# Working on a subset because not all genes have a padj from Deseq2
+ds <- d[!is.na(d$padj), ]
+genes_to_display <- unique(sort(ds[ds$padj < 0.05, "hugo_symbol"]))
+
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$hugo_symbol %in% gl[[n]], ],
+    y_col = "hugo_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```
+
+```{r resultsIntegrationMouseFluoxetineVsControlForStressedConsensus, dependson="resultsIntegrationMouseFluoxetineVsControlForStressedSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Consensus-sorted genes significant in at least one comparison (padj < 0.05). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+consensusScore <- function(gene, df) {
+  df$pvalue[is.na(df$pvalue)] <- 1
+  sum(
+    sign(
+      df[
+        df$hugo_symbol %in% gene & df$pvalue < 0.05,
+        "log2FoldChange"
+      ]
+    )
+  )
+}
+
+consensus_scores <- sapply(
+  genes_to_display,
+  consensusScore,
+  df = d
+)
+genes_to_display <- names(sort(consensus_scores))
+
+d$hugo_symbol <- factor(
+  d$hugo_symbol,
+  levels = genes_to_display
+)
+
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$hugo_symbol %in% gl[[n]], ],
+    y_col = "hugo_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```
+
+```{r resultsIntegrationMouseFluoxetineVsControlForStressedConsensusPadj0p0001, dependson="resultsIntegrationMouseFluoxetineVsControlForStressedSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Consensus-sorted genes significant in at least one comparison (padj < 0.0001). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05). Underlying table is available [here](xlsx/resultsIntegrationMouseFluoxetineVsControlForStressedConsensusPadj0p0001.xlsx)"}
+genes_to_display <- genes_to_display[genes_to_display %in% unique(sort(ds[ds$padj < 0.0001, "hugo_symbol"]))]
+
+d$hugo_symbol <- factor(
+  d$hugo_symbol,
+  levels = genes_to_display
+)
+
+# Export to xlsx
+absMax <- function(x){return(x[which.max(abs(x))])}
+d <- d[!is.na(d$hugo_symbol),]
+d_log2FoldChange <- reshape2::dcast(
+  data = d,
+  formula = hugo_symbol ~ design,
+  value.var = "log2FoldChange",
+  fun.aggregate = absMax,
+  fill = 0
+)
+d_pvalue <- reshape2::dcast(
+  data = d,
+  formula = hugo_symbol ~ design,
+  value.var = "pvalue",
+  fun.aggregate = min,
+  fill = 1
+)
+wb <- createWorkbook()
+addWorksheet(
+  wb,
+  "log2FoldChange"
+)
+addWorksheet(
+  wb,
+  "pvalue"
+)
+writeDataTable(
+  wb,
+  "log2FoldChange",
+  d_log2FoldChange,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "pvalue",
+  d_pvalue,
+  startCol = 1
+)
+conditionalFormatting(
+  wb,
+  sheet = "pvalue",
+  rows = 1:nrow(d_pvalue) + 1,
+  type = "colourScale",
+  style = c("darkgreen", "white"),
+  rule = c(0, 0.1),
+  cols = 2:ncol(d_pvalue)
+)
+conditionalFormatting(
+  wb,
+  sheet = "log2FoldChange",
+  rows = 1:nrow(d_log2FoldChange) + 1,
+  type = "colourScale",
+  style = c("blue", "white", "red"),
+  rule = c(-3, 0, 3),
+  cols = 2:ncol(d_log2FoldChange)
+)
+for (worksheet in c("pvalue", "log2FoldChange")){
+  freezePane(
+    wb,
+    sheet = worksheet,
+    firstRow = TRUE,
+    firstCol = TRUE
+  )
+  headerStyle <- createStyle(
+    # fontSize = 18,
+    # fontName = "Arial",
+    # textDecoration = "bold",
+    # halign = "left",
+    # fgFill = "#1A33CC",
+    # border = "TopBottomLeftRight",
+    textRotation = 90
+  )
+  addStyle(
+    wb,
+    sheet = worksheet,
+    style = headerStyle,
+    rows = 1,
+    cols = 1:ncol(d_pvalue)
+  )
+  setRowHeights(
+    wb,
+    sheet = worksheet,
+    rows = 1,
+    heights = 200
+  )
+  setColWidths(
+    wb,
+    sheet = worksheet,
+    cols = 2:ncol(d_pvalue),
+    widths = 4,
+  )
+  setColWidths(
+    wb,
+    sheet = worksheet,
+    cols = 1,
+    widths = 8,
+  )
+  saveWorkbook(
+    wb,
+    file = file.path(
+      book_from_rmd,
+      "xlsx",
+      paste0(
+        opts_current$get("label"),
+        ".xlsx"
+      )
+    ),
+    overwrite = TRUE
+  )
+}
+
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$hugo_symbol %in% gl[[n]], ],
+    y_col = "hugo_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```
+
+

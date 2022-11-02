@@ -1,0 +1,46 @@
+##### Fluoxetine VS Control for hippocampus subset {#resultsRnaseqSRP084288GroupFluoxetineVsControlForHippocampusSubsetComputeDeseq2}
+
+WARNING: 1 VS 1 comparison. Impossible with DESeq2.
+
+```{r resultsRnaseqSRP084288GroupFluoxetineVsControlForHippocampusSubsetAsCovariatesComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP084288_raw[, -1],
+  colData = SRP084288_metadata,
+  rowData = SRP084288_genes,
+  design = ~ group
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- dds[
+  ,
+  colData(dds)$tissue_region %in% "Hippocampus"
+]
+
+dds <- DESeq(dds)
+resultsNames(dds) # lists the coefficients
+
+# vsd <- varianceStabilizingTransformation(dds)
+
+res <- lfcShrink(
+  dds,
+  coef = "group_Fluoxetine_vs_Control",
+  type = "apeglm"
+)
+```
+
+```{r resultsRnaseqSRP084288GroupFluoxetineVsControlForHippocampusSubsetKnitPostDeseq2, results="asis", cache=FALSE}
+dea_res$rnaseq$SRP084288$DrugFluoxetineVsControlForHippocampusSubset <- cbind(
+  mcols(dds)[,1:4],
+  res
+)
+
+knitPostDeseq2Template(
+  FC_cutoff = 1,
+  cols = rat_cols
+)
+```

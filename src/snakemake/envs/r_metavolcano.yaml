@@ -1,0 +1,8 @@
+name:
+  r_metavolcano
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconductor-metavolcanor

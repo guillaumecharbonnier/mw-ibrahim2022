@@ -1,0 +1,58 @@
+#### Isoform quantification {#resultsRnaseqSRP056481IsoformQuant}
+
+TPM and isoform proportions results are available [here](xlsx/resultsRnaseqSRP056481IsoformQuant.xlsx).
+
+```{r resultsRnaseqSRP056481IsoformQuant}
+SRP056481_metadata$files <- file.path(
+  mw_from_rmd,
+  "out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/",
+  SRP056481_metadata$accession,
+  "quant.sf"
+)
+
+SRP056481_metadata$names <- SRP056481_metadata$sample_title
+
+#SRP056481_metadata$condition <- SRP056481_metadata$cell_type
+se <- tximeta(SRP056481_metadata)
+se <- addIds(
+  se,
+  "SYMBOL",
+  gene = FALSE
+)
+se <- scaleInfReps(se)
+se <- isoformProportions(se)
+
+saveRDS(
+  object = se,
+  file =   file.path(
+    book_from_rmd,
+    "rds",
+    paste0(
+      opts_current$get("label"),
+      ".rds"
+    )
+  )
+)
+
+l <- list()
+#l$counts <- assays(se)$counts
+l$tpm <- assays(se)$abundance
+l$isoProp <- assays(se)$isoProp
+l$transcriptMeta <- mcols(se)
+l$sampleMeta <- colData(se)
+#l$designMeta <- metadata(se)
+
+write.xlsx(
+  l,
+  file.path(
+    book_from_rmd,
+    "xlsx",
+    paste0(
+      opts_current$get("label"),
+      ".xlsx"
+    )
+  )
+)
+```
+
+

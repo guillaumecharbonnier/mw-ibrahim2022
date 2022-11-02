@@ -1,0 +1,631 @@
+### GSE42940 {#resultsMicroarrayGSE42940}
+
+Strange normalization centered on 0 and dissimilar signal intensity distribution between samples. Maybe I should go back to CEL files and normalize myself like for Surget 2009?
+
+```{r resultsMicroarrayGSE42940}
+gset <- getGEO(
+  "GSE42940",
+  destdir = geo_dir,
+  GSEMatrix = TRUE,
+  AnnotGPL = FALSE # Not available for this dataset
+)
+
+pData(gset[[1]])$treatment <- ifelse(
+  pData(gset[[1]])$source_name_ch1 %like% "control",
+  "Control",
+  "Fluoxetine"
+)
+phenotypes <- pData(gset[[1]])
+# phenotypes <- phenotypes[
+# ,
+# colnames(phenotypes) %in% c(
+# "description",
+# "age:ch1",
+# "body weight gain (%):ch1",
+# "flx:ch1",
+# "hybridization campaign:ch1",
+# "strain:ch1",
+# "tissue:ch1",
+# "ucms:ch1"
+# )
+# ]
+produceDataTableWithButtons(phenotypes)
+```
+
+#### Fluoxetine VS Control {#resultsMicroarrayGSE42940FluoxetineVsControl}
+
+##### Default settings {#resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettings}
+
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlPrepareMegablastAnno, include=FALSE}
+# include=FALSE to avoid all errors from eutils queries
+if (length(gset) > 1) idx <- grep("GPL8160", attr(gset, "names")) else idx <- 1
+gset <- gset[[idx]]
+
+# Some accession ids are deprecated and have no matched symbol using this call
+# fData(gset)$SYMBOL <- mapIds(
+#   x = org.Rn.eg.db,
+#   keys = fData(gset)$GB_ACC,
+#   column = "SYMBOL",
+#   keytype = "ACCNUM"
+# )
+
+# # 
+# # Check cacheDir/oldAcc.rds for already queried string
+# retrieveUpdatedAccNum <- function(oldAcc, cacheDir="eutils_cache") {
+#   dir.create(
+#     cacheDir,
+#     showWarnings = FALSE
+#   )
+#   cachePath <- file.path(
+#     cacheDir,
+#     paste0(
+#       oldAcc,
+#       ".rds"
+#     )
+#   )
+#   if (file.exists(cachePath)) {
+#     res <- readRDS(cachePath)
+#     return(res)
+#   }
+#   Sys.sleep(1)
+#   res <- try(
+#     esummary(
+#       esearch(
+#         oldAcc,
+#         retmax = 1
+#       )
+#     )$xmlValue("//ReplacedBy")
+#   )
+#   if (class(res) == "try-error") {
+#     res <- "Unmatched"
+#   }
+#   saveRDS(
+#     res,
+#     cachePath
+#   )
+#   return(res)
+# }
+
+# fData(gset)$UPDATED_ACC <- fData(gset)$GB_ACC
+# fData(gset)[is.na(fData(gset)$SYMBOL),"UPDATED_ACC"] <- pbsapply(
+#   fData(gset)[is.na(fData(gset)$SYMBOL),"GB_ACC"],
+#   retrieveUpdatedAccNum
+# )
+
+
+# sapply(fData(gset)$SYMBOL, is.null)
+
+#doesnot work: all genes are Naca...
+# symbols_from_updated_acc <- mapIds(
+#   x = org.Rn.eg.db,
+#   keys = fData(gset)[is.na(fData(gset)$SYMBOL),"UPDATED_ACC"],
+#   column = "SYMBOL",
+#   keytype = "ACCNUM"
+# )
+# fData(gset)[is.na(fData(gset)$SYMBOL),"SYMBOL"] <- unlist(symbols_from_updated_acc)
+
+# fData(gset)$SYMBOL <- mapIds(
+#   x = org.Rn.eg.db,
+#   keys = fData(gset)$UPDATED_ACC,
+#   column = "SYMBOL",
+#   keytype = "ACCNUM"
+# )
+
+# ### NOTE:
+# # WORKING APPROACH WITH BLAST:
+# to_fasta <- fData(gset)[
+#   sapply(
+#     fData(gset)$SYMBOL,
+#     is.null
+#   ),
+# ]
+# to_fasta2 <- paste0(
+#   ">probe",
+#   1:length(to_fasta$GB_ACC),
+#   "_",
+#   to_fasta$GB_ACC,
+#   "\n",
+#   to_fasta$SEQUENCE,
+#   "\n",
+#   collapse = ""
+# )
+# writeLines(
+#   to_fasta2,
+#   con = "GSE42940_probes_with_outdated_gb_acc.fa"
+# )
+# Then query to dissimilar megablast on Rat
+# The export all hit as csv
+# Then reimport here and add rule to filter 
+
+# to_fasta2 <- paste0(
+#   ">",
+#   fData(gset)$ID,
+#   "\n",
+#   fData(gset)$SEQUENCE,
+#   "\n",
+#   collapse=""
+# )
+# writeLines(
+#   to_fasta2,
+#   con = "GSE42940_probes.fa"
+# )
+# # After query to megablast:
+megablast_res <- fread("../../../inp/megablast/GSE42940.csv")
+names(megablast_res) <- megablast_columns
+
+megablast_res$SYMBOL <- mapIds(
+  x = org.Rn.eg.db,
+  keys = sub(
+    "\\.[0-9]*",
+    "",
+    megablast_res$subject_acc.ver
+  ), # Remove the version of accession ids. They are not recognized by mapIds in orgDb.
+  column = "SYMBOL",
+  keytype = "ACCNUM"
+)
+
+# Some accession ids are not mapped in org.Rn.eg.db so direct query to NCBI is done
+megablast_res_no_symbol_match <- megablast_res[is.na(SYMBOL)]
+
+# Remove probes with multiple matches for the same gene symbol
+megablast_res <- unique(
+  megablast_res,
+  by = c(
+    "query_acc.ver",
+    "SYMBOL"
+  )
+)
+
+# Remove megablast results with no matched symbol
+megablast_res <- megablast_res[!is.na(SYMBOL),]
+
+# Focus query to NCBI on probe without SYMBOL already
+megablast_res_no_symbol_match <- megablast_res_no_symbol_match[!query_acc.ver %in% megablast_res$query_acc.ver]
+
+# Focus on the first hit accession for each probe because queries are limited
+# megablast_res_no_symbol_match <- unique(
+#   megablast_res_no_symbol_match,
+#   by = "query_acc.ver"
+# )
+
+accessionToGeneSummary <- function(accession, cacheDir="eutils_accessionToGeneSummary_cache") {
+  dir.create(
+    cacheDir,
+    showWarnings = FALSE
+  )
+  cachePath <- file.path(
+    cacheDir,
+    paste0(
+      accession,
+      ".rds"
+    )
+  )
+  if (file.exists(cachePath)) {
+    res <- readRDS(cachePath)
+    return(res)
+  }
+  Sys.sleep(1)
+  res <- try(
+    esummary(
+      elink(
+        esearch(
+          accession,
+          retmax = 1
+        ),
+        "nuccore",
+        "gene"
+      )
+    )
+  )
+  if (class(res) == "try-error") {
+    res <- "Unmatched"
+  }
+  saveRDS(
+    res,
+    cachePath
+  )
+  return(res)
+}
+
+accession_summary_res <- pbsapply(
+  megablast_res_no_symbol_match$subject_acc.ver,
+  accessionToGeneSummary
+)
+
+megablast_res_no_symbol_match[
+  , SYMBOL := sapply(
+  accession_summary_res,
+  function(x) {
+    res <- try(xmlValue(x['//Name']))
+    if (length(res) > 1) {
+      res <- as.character(paste(res, collapse=","))
+    }
+    if (is.list(res)){
+      # "DocSum Backend failed: Couldn't resolve #docsum?dbaf=gene, the address table is empty.\nservice: docsum connection: #docsum"
+      return(NA)
+    }
+    if(class(res) == "try-error") {
+      return(NA)
+    }
+    return(res)
+  }
+)
+]
+megablast_res <- rbind(
+  megablast_res,
+  megablast_res_no_symbol_match
+)
+
+
+# Remove probes with multiple matches for the same gene symbol
+megablast_res <- unique(
+  megablast_res,
+  by = c(
+    "query_acc.ver",
+    "SYMBOL"
+  )
+)
+
+# Remove megablast results with no matched symbol
+megablast_res <- megablast_res[!is.na(SYMBOL),]
+
+#on.exit(close(url))
+
+# fData(gset)$UPDATED_ACC <- fData(gset)$GB_ACC
+# fData(gset)[is.na(fData(gset)$SYMBOL),"UPDATED_ACC"] <- pbsapply(
+#   fData(gset)[is.na(fData(gset)$SYMBOL),"GB_ACC"],
+#   retrieveUpdatedAccNum
+# )
+
+# e <- esummary(
+#     elink(
+#       esearch("XM_039090761"),
+#       "nuccore",
+#       "gene"
+#     )
+#   )
+# e['//Name/text()'][[1]]
+
+# e$content
+
+# xmlToList(
+#   elink(
+#     esearch("XM_039090761"),
+#     "nuccore",
+#     "gene"
+#   )$content
+# )$LinkSet$LinkSetDb$Link$Id
+
+
+
+# Remove duplicate hits if the second hit is not a perfect match
+max_bit_score <- max(megablast_res$bit_score)
+megablast_res <- megablast_res[! (duplicated(query_acc.ver) & bit_score < max_bit_score)]
+
+# Since megablast results are ordered from best hist to worst one, removing duplicated results for one probe will keep the best hit
+#megablast_res <- megablast_res[!duplicated(query_acc.ver),]
+
+# Instead of the commented rule above, concatenate symbols for ambiguous probes
+setDT(megablast_res)[
+  ,
+  SYMBOL := paste0(
+    SYMBOL,
+    collapse = ","
+  ),
+  by = query_acc.ver
+]
+megablast_res <- unique(
+  megablast_res,
+  by = "query_acc.ver"
+)
+
+fData(gset) <- merge(
+  fData(gset),
+  megablast_res[,c("query_acc.ver","SYMBOL")],
+  all.x = TRUE,
+  #sort = FALSE,
+  by.x = "ID",
+  by.y = "query_acc.ver"
+)
+
+# these queries are slow to complete
+# https://www.ncbi.nlm.nih.gov/blast/Blast.cgi?QUERY=GGCGATTTACAGCATGTTGGAAGAAGGAAATCAAAACTTACTTCGCACCTACGCCTTTTT&DATABASE=refseq_rna&FILTER=T&PROGRAM=blastn&megablast=on&HITLIST_SIZE=1&NCBI_GI=T&>CMD=Put
+
+#esummary(esearch("XM_22289773"))$xmlValue("//ReplacedBy")
+
+# for (key_type in columns(org.Rn.eg.db)) {
+# #for (key_type in c("ACCNUM","REFSEQ")) {
+#   print(key_type)
+# print(try(mapIds(
+#   x = org.Rn.eg.db,
+#   keys = c("1958657565","NM_013088","XM_213560","XM_237808","XM_222773","NM_001100680"),
+#   column = "SYMBOL",
+#   keytype = key_type
+# )))
+# }
+
+# https://www.ncbi.nlm.nih.gov/nuccore/XM_213560
+
+
+# > e <- elink(tmp, "nuccore", "gene")
+# > e$content
+# [1] "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\">\n<eLinkResult>\n\n  <LinkSet>\n    <DbFrom>nuccore</DbFrom>\n    <IdList>\n      <Id>1958657565</Id>\n    </IdList>\n    <LinkSetDb>\n      <DbTo>gene</DbTo>\n      <LinkName>nuccore_gene</LinkName>\n      \n        <Link>\n\t\t\t\t<Id>287773</Id>\n\t\t\t</Link>\n      \n    </LinkSetDb>\n    \n    \n  </LinkSet>\n</eLinkResult>\n"
+# > tmp
+# Object of class ‘esearch’ 
+# List of UIDs from the ‘nuccore’ database.
+# [1] "1958657565"
+
+# # Note the entrez id in the result above: 287773
+# TODO: extract and tidy this...
+```
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettings}
+# make proper column names to match toptable
+fvarLabels(gset) <- make.names(fvarLabels(gset))
+
+# group membership for all samples
+gsms <- "11110000"
+sml <- strsplit(gsms, split = "")[[1]]
+
+# log2 transformation
+ex <- exprs(gset)
+qx <- as.numeric(quantile(ex, c(0., 0.25, 0.5, 0.75, 0.99, 1.0), na.rm = T))
+LogC <- (qx[5] > 100) ||
+  (qx[6] - qx[1] > 50 && qx[2] > 0)
+if (LogC) {
+  ex[which(ex <= 0)] <- NaN
+  exprs(gset) <- log2(ex)
+}
+
+
+# assign samples to groups and set up design matrix
+gs <- factor(sml)
+groups <- make.names(c("Fluoxetine", "Control"))
+levels(gs) <- groups
+gset$group <- gs
+design <- model.matrix(~ group + 0, gset)
+colnames(design) <- levels(gs)
+
+fit <- lmFit(gset, design) # fit linear model
+
+# set up contrasts of interest and recalculate model coefficients
+cts <- paste(groups[1], groups[2], sep = "-")
+cont.matrix <- makeContrasts(contrasts = cts, levels = design)
+fit2 <- contrasts.fit(fit, cont.matrix)
+
+# compute statistics and table of top significant genes
+fit2 <- eBayes(
+  fit2,
+  0.01
+)
+tT <- topTable(
+  fit2,
+  adjust = "fdr",
+  sort.by = "B",
+  number = 250
+)
+
+tT <- subset(
+  tT,
+  select = c(
+    "adj.P.Val",
+    "P.Value",
+    "t",
+    "B",
+    "logFC",
+    "ID",
+    "GB_ACC",
+    "SYMBOL",
+    "SEQUENCE"
+  )
+)
+
+produceDataTableWithButtons(tT)
+# write.table(tT, file = stdout(), row.names = F, sep = "\t")
+
+# Visualize and quality control test results.
+# Build histogram of P-values for all genes. Normal test
+# assumption is that most genes are not differentially expressed.
+tT2 <- topTable(
+  fit2,
+  adjust = "fdr",
+  sort.by = "B",
+  number = Inf
+)
+hist(
+  tT2$adj.P.Val,
+  col = "grey",
+  border = "white",
+  xlab = "P-adj",
+  ylab = "Number of genes",
+  main = "P-adj value distribution"
+)
+
+# summarize test results as "up", "down" or "not expressed"
+dT <- decideTests(fit2, adjust.method = "fdr", p.value = 0.05)
+
+# Venn diagram of results
+vennDiagram(dT, circle.col = palette())
+
+# create Q-Q plot for t-statistic
+t.good <- which(!is.na(fit2$F)) # filter out bad probes
+qqt(fit2$t[t.good], fit2$df.total[t.good], main = "Moderated t statistic")
+
+# volcano plot (log P-value vs log fold change)
+colnames(fit2) # list contrast names
+ct <- 1 # choose contrast of interest
+volcanoplot(fit2,
+  coef = ct, main = colnames(fit2)[ct], pch = 20,
+  highlight = length(which(dT[, ct] != 0)), names = rep("+", nrow(fit2))
+)
+
+# MD plot (log fold change vs mean log expression)
+# highlight statistically significant (p-adj < 0.05) probes
+plotMD(fit2, column = ct, status = dT[, ct], legend = F, pch = 20, cex = 1)
+abline(h = 0)
+
+################################################################
+# General expression data analysis
+ex <- exprs(gset)
+
+# box-and-whisker plot
+ord <- order(gs) # order samples by group
+palette(c(
+  "#1B9E77", "#7570B3", "#E7298A", "#E6AB02", "#D95F02",
+  "#66A61E", "#A6761D", "#B32424", "#B324B3", "#666666"
+))
+par(mar = c(7, 4, 2, 1))
+title <- paste("GSE42940", "/", annotation(gset), sep = "")
+boxplot(ex[, ord], boxwex = 0.6, notch = T, main = title, outline = FALSE, las = 2, col = gs[ord])
+legend("topleft", groups, fill = palette(), bty = "n")
+
+# expression value distribution
+par(mar = c(4, 4, 2, 1))
+title <- paste("GSE42940", "/", annotation(gset), " value distribution", sep = "")
+plotDensities(ex, group = gs, main = title, legend = "topright")
+
+# UMAP plot (dimensionality reduction)
+ex <- na.omit(ex) # eliminate rows with NAs
+ex <- ex[!duplicated(ex), ] # remove duplicates
+ump <- umap(t(ex), n_neighbors = 4, random_state = 123)
+par(mar = c(3, 3, 2, 6), xpd = TRUE)
+plot(ump$layout, main = "UMAP plot, nbrs=4", xlab = "", ylab = "", col = gs, pch = 20, cex = 1.5)
+legend("topright",
+  inset = c(-0.15, 0), legend = levels(gs), pch = 20,
+  col = 1:nlevels(gs), title = "Group", pt.cex = 1.5
+)
+library("maptools") # point labels without overlaps
+pointLabel(ump$layout, labels = rownames(ump$layout), method = "SANN", cex = 0.6)
+
+# mean-variance trend, helps to see if precision weights are needed
+plotSA(fit2, main = "Mean variance trend, GSE42940")
+
+```
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsToIntegrationOriginalSpecie}
+tT2$Gene.name <- tT2$SYMBOL
+# Rename Limma columns to match the ones from DESeq2
+setnames(
+  x = tT2,
+  old = c(
+    "AveExpr",
+    "logFC",
+    "P.Value",
+    "adj.P.Val"
+  ),
+  new = c(
+    "baseMean",
+    "log2FoldChange",
+    "pvalue",
+    "padj"
+  )
+)
+project <- "GSE42940"
+comparison <- "FluoxetineVsControl"
+tT2$project <- project
+tT2$comparison <- comparison
+
+dea_res[["microarray_v2"]][[project]][[comparison]] <- tT2[
+  !(
+    tT2$Gene.name %like% "," |
+    is.na(tT2$Gene.name) |
+    duplicated(tT2$Gene.name)
+  ),
+  cols_to_for_integration_original_specie
+]
+```
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsToIntegration}
+# TODO: Check fData for column name with gene id or symbol and adjust ENSEMBL_ID below
+tT2 <- tT2[!tT2$GB_ACC %in% "", ]
+# Probes are ordered by increasing p-value
+# We keep only the one with the best pvalue for each gene
+tT2 <- tT2[!duplicated(tT2$GB_ACC), ]
+
+best_orth <- gorth(
+  tT2$GB_ACC,
+  source_organism = "rnorvegicus",
+  target_organism = "hsapiens",
+  mthreshold = 1,
+  filter_na = FALSE
+)
+
+best_orth <- best_orth[
+  ,
+  !colnames(best_orth) %in% c(
+    "input_number",
+    "input_ensg",
+    "ensg_number"
+  )
+]
+setnames(
+  best_orth,
+  old = c(
+    "ortholog_name",
+    "ortholog_ensg"
+  ),
+  new = c(
+    "hugo_symbol",
+    "ensembl_gene_id"
+  )
+)
+
+tT2 <- merge(
+  tT2,
+  best_orth,
+  by.x = "GB_ACC",
+  by.y = "input",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+tT2 <- tT2[!tT2$hugo_symbol %in% "N/A", ]
+dea_res[["microarray"]][[project]][[comparison]] <- tT2
+```
+
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsHeatmapSettings}
+
+fig_height <- 30
+n_top_genes <- 200
+gsubset <- gset[fData(gset)[["ID"]] %in% tT2[1:n_top_genes, ]$ID, ]
+top_annotation_cols <- c(
+  "tissue:ch1",
+  "source_name_ch1",
+  "treatment",
+  "group"
+)
+```
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsHeatmapRaw, dependson="resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsHeatmapSettings", fig.height=fig_height}
+set.seed(3)
+Heatmap(
+  exprs(gsubset),
+  row_labels = fData(gsubset)$SYMBOL,
+  top_annotation = HeatmapAnnotation(
+    df = pData(gsubset)[, top_annotation_cols]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+```
+
+```{r resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsHeatmapZscore, dependson="resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettingsHeatmapSettings", fig.height=fig_height}
+set.seed(3)
+Heatmap(
+  scaleRows(exprs(gsubset)),
+  row_labels = fData(gsubset)$SYMBOL,
+  top_annotation = HeatmapAnnotation(
+    df = pData(gsubset)[, top_annotation_cols]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+```
+
+<!--This heatmap was used to check fold change sign is correct for this design:
+We can see XXXXXX is overexpressed with Fluoxetine, which can be consistently seen on integration dotplots for the design `XXXX-FluoxetineVsControlForNoStressedInDentateGyrus`.
+-->

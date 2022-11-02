@@ -1,0 +1,46 @@
+###### Normal shrinkage{#resultsRnaseqSRP057486FluoxetineVsVehicleForBrainCA1StressedSubsetNormal}
+
+```{r resultsRnaseqSRP057486FluoxetineVsVehicleForBrainCA1StressedSubsetNormalComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP057486_raw[, -1],
+  colData = SRP057486_metadata,
+  rowData = SRP057486_genes,
+  design = ~drug
+)
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- dds[
+  ,
+  colData(dds)$tissue %in% "Brain-CA1" &
+    colData(dds)$treatment %in% "Shocked"
+]
+
+dds <- DESeq(dds)
+resultsNames(dds) # lists the coefficients
+
+# vsd <- varianceStabilizingTransformation(dds)
+
+res <- lfcShrink(
+  dds,
+  coef = "drug_Fluoxetine_vs_Vehicle",
+  type = "normal"
+)
+```
+
+```{r resultsRnaseqSRP057486FluoxetineVsVehicleForBrainCA1StressedSubsetNormalKnitPostDeseq2, results="asis", cache=FALSE}
+knitPostDeseq2Template(
+  FC_cutoff = 0.5,
+  cols = mouse_cols
+)
+
+res$project <- "SRP057486"
+res$comparison <- "FluoxetineVsVehicleForBrainCA1StressedSubset"
+dea_res$rnaseq$SRP057486$FluoxetineVsVehicleForBrainCA1StressedSubset <- cbind(
+  mcols(dds)[, 1:4],
+  res
+)
+```

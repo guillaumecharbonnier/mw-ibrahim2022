@@ -1,0 +1,7 @@
+##### Force normalization {#resultsMicroarrayGSE84185StressedVsUnstressedForceNormalization}
+
+Force normalization is not required since all samples look comparable in boxplots
+
+```{r resultsMicroarrayGSE84185StressedVsUnstressedInDentateGyrusForceNormalization}
+
+```

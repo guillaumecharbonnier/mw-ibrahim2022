@@ -1,0 +1,217 @@
+##### Fluoxetine VS Vehicle for Brain CA1 subset with Treatment as covariate {#resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariate}
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariate}
+sse <- se[
+  ,
+  se$tissue %in% "Brain-CA1"
+]
+comparison_var_name <- "drug"
+
+sse$treatment <- factor(sse$treatment)
+
+sse <- labelKeep(sse)
+sse <- sse[mcols(sse)$keep,]
+set.seed(1)
+sse <- swish(
+  sse,
+  x = comparison_var_name,
+  cov = "treatment"
+)
+table(mcols(sse)$qvalue < .05)
+
+most.sig <- with(
+  mcols(sse),
+  order(
+    qvalue,
+    -abs(log2FC)
+  )
+)
+mcols(sse)[
+  head(most.sig),
+  c(
+    "log2FC",
+    "qvalue"
+  )
+]
+hist(
+  mcols(sse)$pvalue,
+  col = "grey"
+)
+
+with(
+  mcols(sse),
+  table(
+    sig = qvalue < .05,
+    sign.lfc = sign(log2FC)
+  )
+)
+
+#sig <- mcols(sse)$qvalue < .05
+#lo <- order(mcols(sse)$log2FC * sig)
+#hi <- order(-mcols(sse)$log2FC * sig)
+
+top <- mcols(sse)[order(mcols(sse)$pvalue),]
+top_up <- top[sign(top$log2FC) == 1,]
+top_down <- top[sign(top$log2FC) == -1,]
+top_up <- top_up[1:250,]
+top_down <- top_down[1:250,]
+
+cols <- c(
+  "tx_id",
+  "SYMBOL",
+  "log10mean",
+  "log2FC",
+  "pvalue",
+  "qvalue"
+)
+
+write.xlsx(
+  top[,cols],
+  file.path(
+    book_from_rmd,
+    "xlsx",
+    paste0(
+      opts_current$get("label"),
+      ".xlsx"
+    )
+  )
+)
+
+rm(top)
+```
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariateTopUp, fig.cap="Top upregulated isoforms"}
+produceDataTableWithButtons(as.data.frame(top_up)[,cols])
+```
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariateTopDn, fig.cap="Top downregulated isoforms"}
+produceDataTableWithButtons(as.data.frame(top_down)[,cols])
+```
+
+The complete table for all transcripts passing the [labelKeep](https://rdrr.io/bioc/fishpond/man/labelKeep.html) default filter is available [here](xlsx/resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariate.xlsx).
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariatePlotInfRepsTopUp, fig.cap = "Distribution of inferential replicates for the top upregulated isoform, for each sample, splitted by condition"}
+plotInfReps(
+  sse,
+  idx=top_up[1,"tx_id"],
+  #cov = "tissue_region",
+  x = comparison_var_name
+)
+```
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariatePlotInfRepsTopDn, fig.cap="Distribution of inferential replicates for the top downregulated isoform, for each sample, splitted by condition"}
+plotInfReps(
+  sse,
+  idx=top_down[1,"tx_id"],
+  #cov = "tissue_region",
+  x = comparison_var_name
+)
+```
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariatePlotIsoTopUp, fig.cap="TPM, isoform proportion and raw counts for the top upregulated isoform, for each sample, splitted by condition", fig.width=12}
+d <- reshape2::melt(
+  data.frame(
+    isoProp = as.vector(assays(sse[mcols(sse)$tx_id %in% top_up[1,"tx_id"]])$isoProp),
+    TPM = as.vector(assays(sse[mcols(sse)$tx_id %in% top_up[1,"tx_id"]])$abundance),
+    Raw = as.vector(assay(sse[mcols(sse)$tx_id %in% top_up[1,"tx_id"]])),
+    colData(sse)[
+      ,
+      c(
+        "names",
+        "drug",
+        "treatment",
+        "tissue"
+      )
+    ]
+  )
+)
+p <- ggplot(
+  d,
+  aes(
+    x = names,
+    y = value,
+    fill = drug
+  )
+)
+p <- p + geom_bar(stat="identity")
+p <- p + facet_nested(
+  variable ~ drug + treatment + tissue,
+  scales="free"
+)
+p <- p + theme(
+  axis.text.x = element_text(
+    angle = 45,
+    hjust = 1,
+    vjust = 1
+  )
+)
+p <- p + ggtitle(top_up[1,"tx_id"])
+p
+```
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariatePlotIsoTopDn, fig.cap="TPM, isoform proportion and raw counts for the top downregulated isoform, for each sample, splitted by condition", fig.width=12}
+d <- reshape2::melt(
+  data.frame(
+    isoProp = as.vector(assays(sse[mcols(sse)$tx_id %in% top_down[1,"tx_id"]])$isoProp),
+    TPM = as.vector(assays(sse[mcols(sse)$tx_id %in% top_down[1,"tx_id"]])$abundance),
+    Raw = as.vector(assay(sse[mcols(sse)$tx_id %in% top_down[1,"tx_id"]])),
+    colData(sse)[
+      ,
+      c(
+        "names",
+        "drug",
+        "treatment",
+        "tissue"
+      )
+    ]
+  )
+)
+p <- ggplot(
+  d,
+  aes(
+    x = names,
+    y = value,
+    fill = drug
+  )
+)
+p <- p + geom_bar(stat="identity")
+p <- p + facet_nested(
+  variable ~ drug + treatment + tissue,
+  scales="free"
+)
+p <- p + theme(
+  axis.text.x = element_text(
+    angle = 45,
+    hjust = 1,
+    vjust = 1
+  )
+)
+p <- p + ggtitle(top_down[1,"tx_id"])
+p
+```
+
+```{r resultsRnaseqSRP057486DTUFluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariatePlotMA, fig.cap="MA-plot with blue-highlighted genes corresponding to those with qvalue < 0.1"}
+plotMASwish(
+  sse,
+  alpha = .05,
+  xlim = c(.5,5.5)
+)
+
+signifs <- subset(
+  mcols(sse),
+  qvalue < .1 #& abs(log2FC) > 1
+)
+if (nrow(signifs) > 0) {
+  with(
+    signifs,
+    text(
+      log10mean,
+      log2FC,
+      SYMBOL,
+      col = "blue",
+      pos = 4,
+      cex = .7
+    )
+  )
+}
+```

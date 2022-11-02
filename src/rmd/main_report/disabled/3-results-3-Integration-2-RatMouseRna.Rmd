@@ -1,0 +1,100 @@
+### Rat+Mouse RNA-Seq {#resultsIntegrationRatMouseRna}
+
+For this Rat+Mouse integration, genes are converted to their closest human ortholog.
+
+```{r resultsIntegrationRatMouseRnaDotplotSettings}
+fig_width <- 15
+fig_height <- 30
+n_cols <- 5
+```
+
+```{r resultsIntegrationRatMouseRnaDotplotAlphabet, dependson="resultsIntegrationRatMouseRnaDotplotSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Alphabetically-sorted genes significant in at least one comparison (padj < 0.05). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+# First two columns are removed because they are specie specific
+d <- rbind(
+  dea_res$rnaseq$SRP131063$FluoxetineVsSalineForStressed[, -c(1:2)],
+  dea_res$rnaseq$SRP084288$FluoxetineVsControlWithTissueAsCovariate[, -c(1:2)],
+  dea_res$rnaseq$SRP057486$FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates[, -c(1:2)],
+  dea_res$rnaseq$SRP057486$FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates[, -c(1:2)],
+  dea_res$rnaseq$SRP057486$FluoxetineVsVehicleForBrainCA1StressedSubset[, -c(1:2)],
+  dea_res$rnaseq$SRP056481$FluoxetineVsMethylcellulose[, -c(1:2)]
+)
+
+d <- d[!is.na(d$padj), ]
+d <- d[!d$hugo_symbol %in% "N/A", ]
+
+d$design <- paste(
+  d$project,
+  d$comparison,
+  sep = "-"
+)
+
+# Working on a subset because not all genes have a padj from Deseq2
+ds <- d[!is.na(d$padj), ]
+genes_to_display <- unique(sort(ds[ds$padj < 0.05, "hugo_symbol"]))
+
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$hugo_symbol %in% gl[[n]], ],
+    y_col = "hugo_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```
+
+```{r resultsIntegrationRatMouseRnaDotplotConsensus, dependson="resultsIntegrationRatMouseRnaDotplotSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Consensus-sorted genes significant in at least one comparison (padj < 0.05). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+consensusScore <- function(gene, df) {
+  df$pvalue[is.na(df$pvalue)] <- 1
+  sum(
+    sign(
+      df[
+        df$hugo_symbol %in% gene & df$pvalue < 0.05,
+        "log2FoldChange"
+      ]
+    )
+  )
+}
+
+consensus_scores <- sapply(
+  genes_to_display,
+  consensusScore,
+  df = d
+)
+genes_to_display <- names(sort(consensus_scores))
+
+d$hugo_symbol <- factor(
+  d$hugo_symbol,
+  levels = genes_to_display
+)
+
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$hugo_symbol %in% gl[[n]], ],
+    y_col = "hugo_symbol"
+  )
+}
+
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```

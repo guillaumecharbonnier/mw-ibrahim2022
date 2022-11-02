@@ -1,0 +1,16 @@
+# Results
+
+Datasets are first explored separately in the two following subsections, then integrative approaches are applied. Note the microarrays are referred to by the GSE id, while the RNA-Seq are referred to by their SRP id. While RNA-Seq also have GSE id, the use of distinct ids make the distinction clearer.
+
+```{r results}
+dea_res <- list(
+  microarray = list(),
+  rnaseq = list(),
+  microarray_v2 = list() # microarray using reannotations from Biomart instead of the original author ones
+)
+
+norm_signal <- list(
+  microarray = list(),
+  rnaseq = list()
+)
+```

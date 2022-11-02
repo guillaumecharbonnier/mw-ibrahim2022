@@ -1,0 +1,60 @@
+#### Isoform quantification {#resultsRnaseqSRP084288IsoformQuant}
+
+TPM and isoform proportions results are available [here](xlsx/resultsRnaseqSRP084288IsoformQuant.xlsx).
+
+```{r resultsRnaseqSRP084288IsoformQuant}
+SRP084288_metadata$files <- file.path(
+  mw_from_rmd,
+  "out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe",
+  SRP084288_metadata$accession,
+  "quant.sf"
+)
+SRP084288_metadata$names <- SRP084288_metadata$source_name
+
+se <- tximeta(SRP084288_metadata)
+
+se <- addIds(
+  se,
+  "SYMBOL",
+  gene = FALSE # TRUE fails for Rattus Norvegicus while ok for Mm and Hs ?!...
+)
+se <- addIds(
+  se,
+  "GENENAME",
+  gene = FALSE # TRUE fails for Rattus Norvegicus while ok for Mm and Hs ?!...
+)
+se <- scaleInfReps(se)
+se <- isoformProportions(se)
+
+saveRDS(
+  object = se,
+  file =   file.path(
+    book_from_rmd,
+    "rds",
+    paste0(
+      opts_current$get("label"),
+      ".rds"
+    )
+  )
+)
+
+l <- list()
+#l$counts <- assays(se)$counts
+l$tpm <- assays(se)$abundance
+l$isoProp <- assays(se)$isoProp
+l$transcriptMeta <- mcols(se)
+l$sampleMeta <- colData(se)
+#l$designMeta <- metadata(se)
+
+write.xlsx(
+  l,
+  file.path(
+    book_from_rmd,
+    "xlsx",
+    paste0(
+      opts_current$get("label"),
+      ".xlsx"
+    )
+  )
+)
+```

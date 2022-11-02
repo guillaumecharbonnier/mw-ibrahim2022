@@ -1,0 +1,150 @@
+## RNA-Seq datasets
+
+Library strandedeness is evaluated using Salmon with automatic [library type](https://salmon.readthedocs.io/en/latest/library_type.html) detection. Since all samples for each dataset is detected as the same type as the others, automatic library type detection is considered consistent for these datasets and will be trusted.
+
+```{r resultsRnaSeqPrepareRatTranscriptome}
+index_dir <- file.path(
+  mw_from_rmd,
+  "out/salmon/index_ensembl_with_decoys_toplevel/release-102/fasta/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0"
+)
+
+fasta_ftp <- c(
+  "ftp://ftp.ensembl.org/pub/release-102/fasta/rattus_norvegicus/cdna/Rattus_norvegicus.Rnor_6.0.cdna.all.fa.gz",
+  "ftp://ftp.ensembl.org/pub/release-102/fasta/rattus_norvegicus/ncrna/Rattus_norvegicus.Rnor_6.0.ncrna.fa.gz"
+)
+
+
+gtf_ftp <- "ftp://ftp.ensembl.org/pub/release-102/gtf/rattus_norvegicus/Rattus_norvegicus.Rnor_6.0.102.gtf.gz"
+
+tmp <- tempdir()
+json_filepath <- file.path(
+  tmp,
+  paste0(
+    basename(index_dir), 
+    ".json"
+  )
+)
+
+setTximetaBFC(
+  file.path(
+    mw_from_rmd,
+    "out/TximetaBFC"
+  )
+)
+
+makeLinkedTxome(
+  indexDir = index_dir,
+  source = "Ensembl",
+  organism = "Rattus norvegicus",
+  release = "102",
+  genome = "Rnor_6.0",
+  fasta = fasta_ftp,
+  gtf = gtf_ftp,
+  jsonFile = json_filepath
+)
+```
+
+```bash
+$ grep "Automatically detected most likely library type as" out/salmon/*/*/*/*/*/*/logs/salmon_quant.log | sed "s|/logs/salmon_quant.log.*Automatically detected most likely library type as |\t|g"
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123954    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123955    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123956    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123957    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123958    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123959    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123960    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123961    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123962    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123963    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123964    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR4123965    ISF
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497505    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497506    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497507    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497508    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497509    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497510    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497511    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497512    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497513    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497514    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497515    IU
+out/salmon/quant_fastq_pe_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/pe_-t_sanger_-q_20/sra-tools/fastq-dump_pe/SRR6497516    IU
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982298   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982299   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982300   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982301   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982302   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982303   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982304   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982305   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982306   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982307   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982308   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982309   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982310   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982311   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982312   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982313   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982314   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982315   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982316   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982317   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982318   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982319   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982320   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982321   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982322   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982323   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982324   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982325   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982326   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982327   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982328   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982329   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982330   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982331   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982332   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982333   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982334   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982335   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982336   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982337   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982338   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982339   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982340   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982341   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982342   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982343   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982344   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982345   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982346   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982347   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982348   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982349   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982350   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982351   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982352   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982353   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982354   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982355   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982356   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982357   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982358   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982359   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982360   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982361   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982362   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982363   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982364   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982365   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982366   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982367   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982368   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1982369   U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1927116    U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1927117    U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1927118    U
+out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-Rnor6-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se/SRR1927119    U
+```
+

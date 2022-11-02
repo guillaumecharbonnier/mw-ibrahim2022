@@ -1,0 +1,1 @@
+../../../../../mw-lib/src/rmd/variables/favoriteKnitrOptions.R

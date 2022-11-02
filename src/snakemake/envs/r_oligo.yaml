@@ -1,0 +1,13 @@
+name:
+  r_oligo
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-biocmanager
+  - bioconductor-limma
+  - bioconductor-annotationdbi
+  - bioconductor-geoquery
+  - bioconductor-oligo
+  - openblas == 0.3.3 # https://support.bioconductor.org/p/117119/

@@ -1,0 +1,43 @@
+###### Normal {#resultsRnaseqSRP131063FluoxetineVsSalineForStressedNormal}
+
+```{r resultsRnaseqSRP131063FluoxetineVsSalineForStressedNormalComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP131063_raw[, -1],
+  colData = SRP131063_metadata,
+  rowData = SRP131063_genes,
+  design = ~group
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- DESeq(dds)
+resultsNames(dds) # lists the coefficients
+
+# vsd <- varianceStabilizingTransformation(dds)
+
+res <- lfcShrink(
+  dds,
+  coef = "group_stress.fluoxetine_vs_stress.saline",
+  type = "normal"
+)
+```
+
+```{r resultsRnaseqSRP131063FluoxetineVsSalineForStressedNormalKnitPostDeseq2, results="asis", cache=FALSE}
+knitPostDeseq2Template(
+  FC_cutoff = 0.5,
+  cols = rat_cols
+)
+
+res$project <- "SRP131063"
+res$comparison <- "FluoxetineVsSalineForStressed"
+
+dea_res$rnaseq$SRP131063$FluoxetineVsSalineForStressed <- cbind(
+  mcols(dds)[, 1:4],
+  res
+)
+```
+

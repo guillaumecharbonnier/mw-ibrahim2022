@@ -1,0 +1,41 @@
+###### Normal shrinkage {#resultsRnaseqSRP056481FluoxetineVsMethylcelluloseNormalNormalComputeDeseq2}
+
+```{r resultsRnaseqSRP056481FluoxetineVsMethylcelluloseNormalComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP056481_raw[, -1],
+  colData = SRP056481_metadata,
+  rowData = SRP056481_genes,
+  design = ~treatment
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- DESeq(dds)
+resultsNames(dds) # lists the coefficients
+
+# vsd <- varianceStabilizingTransformation(dds)
+
+res <- lfcShrink(
+  dds,
+  coef = "treatment_Fluoxetine_vs_Methylcellulose",
+  type = "normal"
+)
+```
+
+```{r resultsRnaseqSRP056481FluoxetineVsMethylcelluloseNormalKnitPostDeseq2, results="asis", cache=FALSE}
+knitPostDeseq2Template(
+  FC_cutoff = 0.5,
+  cols = rat_cols
+)
+
+res$project <- "SRP056481"
+res$comparison <- "FluoxetineVsMethylcellulose"
+dea_res$rnaseq$SRP056481$FluoxetineVsMethylcellulose <- cbind(
+  mcols(dds)[, 1:4],
+  res
+)
+```

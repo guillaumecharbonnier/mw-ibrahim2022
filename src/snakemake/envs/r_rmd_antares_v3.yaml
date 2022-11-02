@@ -1,0 +1,71 @@
+name:
+  r_rmd_antares_v3
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconductor-metavolcanor # adding this on 2022-05-08 11:38:10 (not tested)
+  - r-rmarkdown
+  - r-bookdown
+  - pandoc=1.19 #requirement to render R Markdown.
+  - r-codetools #requirement to avoid error after first R chunk during R Markdown rendering.
+  - r-yaml
+  - r-httr
+  - r-funr
+  - r-dt
+  - r-styler
+  - r-rcolorbrewer
+  - r-ggplot2
+  - r-ggally
+  - r-ggrepel
+  - r-ggh4x
+  - r-ggcorrplot
+  - r-ggpubr
+  - r-ggupset
+  - r-ggbeeswarm
+  - r-polychrome
+  - r-data.table
+  - r-r.utils # allows to load bz2 files with fread
+  - r-stringr
+  - r-nmf
+  - r-umap
+  - umap-learn
+  - r-fastcluster # provides a replacement to R-base hclust to cluster more than 65536 rows.
+  - r-factoextra
+  - r-fpc # I want to try pamk
+  - r-plotly
+  - r-rcolorbrewer
+  - r-factominer
+  - r-factoextra
+  - r-flexclust
+  - r-gprofiler2
+  - r-sfsmisc
+  - r-mass
+  - r-openxlsx
+  - r-dendsort
+  - r-dendextend
+  - r-pbapply
+  - r-biocmanager
+  - bioconductor-limma
+  - bioconductor-oligo
+  - bioconductor-mouse4302.db
+  - bioconductor-ragene10sttranscriptcluster.db
+  - bioconductor-deseq2
+  - bioconductor-apeglm
+  - r-ashr
+  - bioconductor-edger
+  - bioconductor-fishpond
+  - bioconductor-tximeta
+  - bioconductor-geoquery
+  - bioconductor-cemitool
+  - bioconductor-complexheatmap
+  - bioconductor-summarizedexperiment
+  - bioconductor-clusterprofiler
+  - bioconductor-org.hs.eg.db
+  - bioconductor-org.mm.eg.db
+  - bioconductor-org.rn.eg.db
+  - bioconductor-enrichplot
+  - bioconductor-reactomepa
+  - bioconductor-enhancedvolcano
+

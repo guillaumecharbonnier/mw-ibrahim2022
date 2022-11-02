@@ -1,0 +1,29 @@
+## Integration {#resultsIntegration}
+
+Integration analyses are done in this section following [designs specified by El Chérif](doc/Table_transcriptomics_rodent_antidepressant_mars2021.xlsx).
+Analyses were first done using the closest human ortholog (Section \@ref(resultsIntegrationToHumanOrtholog)). For microarrays, mapping from probes or probesets to genes were done using the original author annotations, completed with available R Org.db modules.
+
+Analyses were then repeated using the original Gene name for rat or mouse (Section \@ref(resultsIntegrationOriginalSpecie)). For microarrays, mapping from probes or probesets to genes were done using Biomart latest annotations, or using megablast queries when unavailable (GSE42940). Probes with mapping to multiple genes are discarded.
+
+For RNA-Seq, log2FoldChange use in this integration section is the Normal shrinkage and not the Apeglm that was considered too stringent for this kind of analysis.
+
+<!-- TODO: jNMFA (https://academic.oup.com/bioinformatics/article/31/4/572/2748206) -->
+
+```{r resultsIntegration}
+# This chunk ensure the input metadata can be accessed in the hosted bookdown
+smi <- "doc/Table_transcriptomics_rodent_antidepressant_mars2021.xlsx"
+linkSmiToRmdAndBookDir(smi)
+
+# Saving here the object with all DEA results to allow exploration outside the bookdown report
+# saveRDS(
+#   object = dea_res,
+#   file =   file.path(
+#     book_from_rmd,
+#     "rds",
+#     paste0(
+#       opts_current$get("label"),
+#       ".rds"
+#     )
+#   )
+# )
+```

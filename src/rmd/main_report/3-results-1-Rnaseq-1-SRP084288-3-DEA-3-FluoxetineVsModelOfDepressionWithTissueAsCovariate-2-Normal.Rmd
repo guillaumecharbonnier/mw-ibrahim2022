@@ -1,0 +1,109 @@
+###### Normal shrinkage{#resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormal}
+
+```{r resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP084288_raw[, -1],
+  colData = SRP084288_metadata,
+  rowData = SRP084288_genes,
+  design = ~ tissue_region + group
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+levels(dds$group) <- sub(
+  "model of depression",
+  "ModelOfDepression",
+  levels(dds$group)
+)
+dds$group <- factor(
+  dds$group,
+  levels = c(
+    "ModelOfDepression",
+    "Control",
+    "Fluoxetine",
+    "Acupuncture"
+  )
+)
+
+dds <- DESeq(dds)
+#resultsNames(dds) # lists the coefficients
+# vsd <- varianceStabilizingTransformation(dds)
+res <- lfcShrink(
+  dds,
+  coef = "group_Fluoxetine_vs_ModelOfDepression",
+  type = "normal"
+)
+```
+
+```{r resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalKnitPostDeseq2, results="asis", cache=FALSE}
+knitPostDeseq2Template(
+  FC_cutoff = 0.5,
+  cols = rat_cols
+)
+
+res$project <- "SRP084288"
+res$comparison <- "FluoxetineVsModelOfDepressionWithTissueAsCovariate"
+
+dea_res$rnaseq$SRP084288$FluoxetineVsModelOfDepressionWithTissueAsCovariate <- cbind(
+  mcols(dds)[, 1:4],
+  res
+)
+```
+
+
+```{r resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalDefaultSettingsHeatmapSettings}
+fig_height <- 30
+n_top_genes <- 200
+
+dds <- varianceStabilizingTransformation(dds)
+dds <- dds[rank(res$pvalue) < 200, ]
+```
+
+```{r resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalDefaultSettingsHeatmapRaw, dependson="resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalDefaultSettingsHeatmapSettings", fig.height=fig_height}
+set.seed(123)
+Heatmap(
+  assay(dds),
+  row_labels = rowData(dds)$hugo_symbol,
+  top_annotation = HeatmapAnnotation(
+    df = colData(dds)[
+      ,
+      c(
+        "tissue_region",
+        "group"
+      )
+    ]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+```
+
+```{r resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalDefaultSettingsHeatmapZscore, dependson="resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateNormalDefaultSettingsHeatmapSettings", fig.height=fig_height}
+set.seed(123)
+Heatmap(
+  scaleRows(assay(dds)),
+  row_labels = rowData(dds)$hugo_symbol,
+  top_annotation = HeatmapAnnotation(
+    df = colData(dds)[
+      ,
+      c(
+        "tissue_region",
+        "group"
+      )
+    ]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+```
+
+<!--
+This heatmap was used to check fold change sign is correct for this design:
+We can see ASAP1 is overexpressed with Fluoxetine, which can be consistently seen on integration dotplots for the design `GSE84185-FluoxetineVsModelOfDepressionForNoStressedInDentateGyrus`.
+-->

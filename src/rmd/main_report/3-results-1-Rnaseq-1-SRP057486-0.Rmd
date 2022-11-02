@@ -1,0 +1,86 @@
+### SRP057486 {#resultsRnaseqSRP057486}
+
+```{r resultsRnaseqSRP057486}
+smi <- "out/r/tidy_featureCounts/subread/featureCounts_-O_-t_exon_-g_merge_gene_id_name_gtf-GRCm38-merge-attr-retrieve-ensembl_bam-GRCm38-SRP057486_raw.tsv"
+linkSmiToRmdAndBookDir(smi)
+SRP057486_raw <- fread(smi)
+produceDataTableWithButtons(head(SRP057486_raw))
+
+smi <- "out/py/retrieve_sra_metadata/SRP057486.xlsx"
+linkSmiToRmdAndBookDir(smi)
+SRP057486_metadata <- read_excel(smi)
+produceDataTableWithButtons(SRP057486_metadata)
+
+
+SRP057486_genes <- SRP057486_raw[, 1]
+SRP057486_genes[
+  ,
+  c(
+    "mouse_ensembl_gene_id",
+    #"mouse_symbol"
+    "Gene.name"
+  ) := tstrsplit(
+    Geneid,
+    "|",
+    fixed = TRUE
+  )
+]
+# This issue is only for rat apparently...
+# Some ENSEMBLE gene have "." as gene.name
+# SRP057486_genes[
+#   Gene.name %like% "^\\.$",
+#   Gene.name := mouse_ensembl_gene_id
+# ]
+SRP057486_genes[, Geneid := NULL]
+
+# if (exists("mouse_to_human_best_orth")) {
+#   message("The mapping from Mouse to Human gene has already been queried to g:Orth in a previous section. The same table is reused.")
+# } else {
+mouse_to_human_best_orth <- gorth(
+  SRP057486_genes$mouse_ensembl_gene_id,
+  source_organism = "mmusculus",
+  target_organism = "hsapiens",
+  mthreshold = 1,
+  filter_na = FALSE
+)
+
+mouse_to_human_best_orth <- mouse_to_human_best_orth[
+  ,
+  !colnames(mouse_to_human_best_orth) %in% c(
+    "input_number",
+    "input_ensg",
+    "ensg_number"
+  )
+]
+setnames(
+  mouse_to_human_best_orth,
+  old = c(
+    "ortholog_name",
+    "ortholog_ensg"
+  ),
+  new = c(
+    "hugo_symbol",
+    "ensembl_gene_id"
+  )
+)
+# }
+
+SRP057486_genes <- merge(
+  SRP057486_genes,
+  mouse_to_human_best_orth,
+  by.x = "mouse_ensembl_gene_id",
+  by.y = "input",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+row.names(SRP057486_metadata) <- SRP057486_metadata$accession
+
+SRP057486_metadata$drug <- factor(
+  SRP057486_metadata$drug,
+  levels = c(
+    "Vehicle",
+    "Fluoxetine"
+  )
+)
+```

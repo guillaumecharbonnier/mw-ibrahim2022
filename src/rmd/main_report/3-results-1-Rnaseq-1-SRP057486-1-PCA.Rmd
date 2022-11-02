@@ -1,0 +1,24 @@
+
+#### PCA {#resultsRnaseqSRP057486PCA}
+
+```{r resultsRnaseqSRP057486PCA}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP057486_raw[, -1],
+  colData = SRP057486_metadata,
+  rowData = SRP057486_genes,
+  design = ~ tissue + treatment + drug
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- DESeq(dds)
+resultsNames(dds) # lists the coefficients
+
+vsd <- varianceStabilizingTransformation(dds)
+
+norm_signal$SRP057486 <- vsd
+```

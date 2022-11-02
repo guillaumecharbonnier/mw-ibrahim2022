@@ -1,0 +1,38 @@
+##### Fluoxetine VS ModelOfDepression in Hippocampus{#resultsRnaseqSRP084288FluoxetineVsModelOfDepressionInHippocampusComputeDeseq2}
+
+```{r resultsRnaseqSRP084288FluoxetineVsModelOfDepressionInHippocampusComputeDeseq2}
+dds <- DESeqDataSetFromMatrix(
+  countData = SRP084288_raw[, -1],
+  colData = SRP084288_metadata,
+  rowData = SRP084288_genes,
+  design = ~ group
+)
+
+# Unsure to filter genes here
+# Because I want to be able to see them
+# if they are DE in another experiment.
+keep <- rowSums(counts(dds)) >= ncol(counts(dds))
+dds <- dds[keep, ]
+
+dds <- dds[
+  ,
+  colData(dds)$tissue_region %in% "Hippocampus"
+]
+
+keep <- rowSums(counts(dds)) >= 10 * ncol(counts(dds))
+dds <- dds[keep, ]
+
+rowData(dds)$log2FoldChange <- log2((assay(dds[,"SRR4123960"])+1) / (assay(dds[,"SRR4123957"])+1))
+
+quantile(rowData(dds)$log2FoldChange)
+
+df <- data.frame(rowData(dds))
+setnames(
+  df,
+  old = "SRR4123960",
+  new = "log2FoldChange"
+)
+df <- data.frame(log2FoldChange = df$log2FoldChange, df[,-length(df)])
+df <- df[abs(df$log2FoldChange) > 0.5,]
+produceDataTableWithButtons(df)
+```

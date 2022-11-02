@@ -1,0 +1,55 @@
+### Check Sex Control (GSE195833)
+
+The raw counts table from the GSE195833 study was retrieved to highlight how the signal for sexual genes should vary in an experiment with both male and female.
+Note that the table was quantified at transcript level instead of gene one, hence the multiple rows for the same gene name. Eif2s3y seems to be the best discriminant for male VS female. Since it does not vary between samples for SRP131063 and SRP084288, and its vst signal is above 10 for all samples, we can reasonably conclude all the samples are males.
+
+```{r resultsRnaseqCheckSexControl}
+
+d <- fread(
+  file.path(
+    mw_from_rmd,
+    "inp/GSE195833_FeatureCounts_Naive_Sham_TKA.csv.gz"
+  )
+)
+d[, Geneid := sub("\\.[0-9]*$", "", Geneid)]
+
+# Taking metadata from the previous experiment because this count table has only ensembl ids
+sex_genes <- rowData(vsd_sex_genes)
+
+dds <- DESeqDataSetFromMatrix(
+  countData = d[, -1],
+  colData = data.frame(sample_name=names(d[,-1])),
+  rowData = d[,1],
+  design = ~ 1
+)
+vsd <- vst(dds)
+
+library(biomaRt)
+mart <- useMart("ensembl","rnorvegicus_gene_ensembl")
+ensemble2gene <- getBM(attributes=c("ensembl_transcript_id","external_gene_name","ensembl_gene_id"),
+                       filters = "ensembl_transcript_id",
+                       values = d[,1], 
+                       mart = mart)
+rownames(ensemble2gene) <- ensemble2gene$ensembl_transcript_id
+
+
+rowData(vsd) <- cbind(
+  rowData(vsd),
+  ensemble2gene[
+    match(
+      rowData(vsd)$Geneid,
+      ensemble2gene$ensembl_transcript_id
+    ),
+  ]
+)
+vsd_sex_genes <- vsd[rowData(vsd)$ensembl_gene_id %in% sex_genes$rat_ensembl_gene_id,]
+```
+
+```{r resultsRnaseqCheckSexControlHeatmap}
+set.seed(12)
+Heatmap(
+  assay(vsd_sex_genes),
+  row_labels = rowData(vsd_sex_genes)$external_gene_name#,
+  #right_annotation = rowAnnotation(sex_annot = rowData(vsd_sex_genes)$sex_annot)
+)
+```

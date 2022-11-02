@@ -1,0 +1,103 @@
+### SRP084288 {#resultsRnaseqSRP084288}
+
+```{r resultsRnaseqSRP084288}
+smi <- "out/r/tidy_featureCounts/subread/featureCounts_-O_-t_exon_-g_merge_gene_id_name_gtf-Rnor6-merge-attr-retrieve-ensembl_bam-Rnor6-SRP084288_raw.tsv"
+linkSmiToRmdAndBookDir(smi)
+SRP084288_raw <- fread(smi)
+produceDataTableWithButtons(head(SRP084288_raw))
+
+smi <- "out/py/retrieve_sra_metadata/SRP084288.xlsx"
+linkSmiToRmdAndBookDir(smi)
+SRP084288_metadata <- read_excel(smi)
+produceDataTableWithButtons(SRP084288_metadata)
+
+SRP084288_genes <- SRP084288_raw[, 1]
+SRP084288_genes[
+  ,
+  c(
+    "rat_ensembl_gene_id",
+    #"rat_symbol"
+    "Gene.name"
+  ) := tstrsplit(
+    Geneid,
+    "|",
+    fixed = TRUE
+  )
+]
+# Some ENSEMBLE gene have "." as gene.name
+SRP084288_genes[
+  Gene.name %like% "^\\.$",
+  Gene.name := rat_ensembl_gene_id
+]
+SRP084288_genes[, Geneid := NULL]
+
+# rat_to_human_orths <- gorth(
+#   SRP084288_genes$rat_ensembl_gene_id,
+#   source_organism = "rnorvegicus",
+#   target_organism = "hsapiens",
+#   filter_na = FALSE
+# )
+if (exists("rat_to_human_best_orth")) {
+  message("The mapping from Rat to Human gene has already been queried to g:Orth in a previous section. The same table is reused.")
+} else {
+  rat_to_human_best_orth <- gorth(
+    SRP084288_genes$rat_ensembl_gene_id,
+    source_organism = "rnorvegicus",
+    target_organism = "hsapiens",
+    mthreshold = 1,
+    filter_na = FALSE
+  )
+
+  # There is only a limited number of multiple orthologues:
+  # > dim(rat_to_human_orths)
+  # [1] 36521     7
+  # > dim(rat_to_human_best_orth)
+  # [1] 32620     7
+
+  rat_to_human_best_orth <- rat_to_human_best_orth[
+    ,
+    !colnames(rat_to_human_best_orth) %in% c(
+      "input_number",
+      "input_ensg",
+      "ensg_number"
+    )
+  ]
+  setnames(
+    rat_to_human_best_orth,
+    old = c(
+      "ortholog_name",
+      "ortholog_ensg"
+    ),
+    new = c(
+      "hugo_symbol",
+      "ensembl_gene_id"
+    )
+  )
+}
+
+SRP084288_genes <- merge(
+  SRP084288_genes,
+  rat_to_human_best_orth,
+  by.x = "rat_ensembl_gene_id",
+  by.y = "input",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+row.names(SRP084288_metadata) <- SRP084288_metadata$accession
+
+SRP084288_metadata$group <- factor(
+  SRP084288_metadata$group,
+  levels = c(
+    "Control",
+    "Fluoxetine",
+    "Acupuncture",
+    "model of depression"
+  )
+)
+setnames(
+  SRP084288_metadata,
+  old = "tissue region",
+  new = "tissue_region"
+)
+```

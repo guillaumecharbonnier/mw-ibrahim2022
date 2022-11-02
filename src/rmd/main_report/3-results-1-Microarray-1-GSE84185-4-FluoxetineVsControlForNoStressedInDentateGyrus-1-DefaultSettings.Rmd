@@ -1,0 +1,361 @@
+#### Fluoxetine VS Control for No Stressed in Dentate Gyrus{#resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrus}
+
+##### Default settings {#resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettings}
+
+```{r resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettings}
+# Version info: R 3.2.3, Biobase 2.30.0, GEOquery 2.40.0, limma 3.26.8
+################################################################
+#   Differential expression analysis with limma
+library(GEOquery)
+library(limma)
+library(umap)
+
+# load series and platform data from GEO
+
+gset <- getGEO(
+  "GSE84185",
+  destdir = geo_dir,
+  GSEMatrix = TRUE,
+  AnnotGPL = FALSE
+)
+
+fData(gset[[1]]) <- cbind(
+  fData(gset[[1]]),
+  annotations$AGILENT_SurePrint_G3_GE_8x60k[
+    match(
+      fData(gset[[1]])$NAME,
+      annotations$AGILENT_SurePrint_G3_GE_8x60k$probe
+    )
+  ]
+)
+
+
+if (length(gset) > 1) idx <- grep("GPL13912", attr(gset, "names")) else idx <- 1
+gset <- gset[[idx]]
+
+# make proper column names to match toptable
+fvarLabels(gset) <- make.names(fvarLabels(gset))
+
+# log2 transformation
+ex <- exprs(gset)
+qx <- as.numeric(quantile(ex, c(0., 0.25, 0.5, 0.75, 0.99, 1.0), na.rm = T))
+LogC <- (qx[5] > 100) ||
+  (qx[6] - qx[1] > 50 && qx[2] > 0)
+if (LogC) {
+  ex[which(ex <= 0)] <- NaN
+  exprs(gset) <- log2(ex)
+}
+
+gset <- gset[
+  ,
+  gset[["tissue:ch1"]] %in% c(
+    "Dentate Gyrus"
+  ) &
+    gset[["ucms:ch1"]] %in% c(
+      "Unstressed"
+    )
+]
+
+flx <- factor(make.names(gset[["flx:ch1"]]))
+# ADD hybridization campaign here
+hybridization_campaign <- factor(make.names(gset[["hybridization campaign:ch1"]]))
+
+design <- model.matrix(~ 0 + flx + hybridization_campaign, gset)
+
+fit <- lmFit(gset, design) # fit linear model
+
+# set up contrasts of interest and recalculate model coefficients
+contrast_matrix <- makeContrasts(
+  contrasts = "flxYes-flxNo",
+  levels = design
+)
+
+fit2 <- contrasts.fit(
+  fit,
+  contrast_matrix
+)
+
+# compute statistics and table of top significant genes
+fit2 <- eBayes(
+  fit2,
+  0.01
+)
+tT <- topTable(
+  fit2,
+  adjust = "fdr",
+  sort.by = "B",
+  number = 250
+)
+
+tT <- subset(
+  tT,
+  select = columns_for_tT
+)
+# write.table(
+#   tT,
+#   file = stdout(),
+#   row.names = FALSE,
+#   sep = "\t"
+# )
+produceDataTableWithButtons(tT)
+
+
+gsubset <- gset[fData(gset)[["ID"]] %in% tT$ID, ]
+
+set.seed(123)
+Heatmap(
+  exprs(gsubset),
+  row_labels = fData(gsubset)$GENE_SYMBOL,
+  top_annotation = HeatmapAnnotation(
+    df = pData(gsubset)[
+      ,
+      c(
+        "hybridization campaign:ch1",
+        "tissue:ch1",
+        "ucms:ch1",
+        "flx:ch1"
+      )
+    ]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+
+# Visualize and quality control test results.
+# Build histogram of P-values for all genes. Normal test
+# assumption is that most genes are not differentially expressed.
+tT2 <- topTable(
+  fit2,
+  adjust = "fdr",
+  sort.by = "B",
+  number = Inf
+)
+hist(
+  tT2$adj.P.Val,
+  col = "grey",
+  border = "white",
+  xlab = "P-adj",
+  ylab = "Number of genes",
+  main = "P-adj value distribution"
+)
+
+# summarize test results as "up", "down" or "not expressed"
+dT <- decideTests(
+  fit2,
+  adjust.method = "fdr",
+  p.value = 0.05
+)
+
+# Venn diagram of results
+vennDiagram(
+  dT,
+  circle.col = palette()
+)
+
+# create Q-Q plot for t-statistic
+t.good <- which(!is.na(fit2$F)) # filter out bad probes
+qqt(
+  fit2$t[t.good],
+  fit2$df.total[t.good],
+  main = "Moderated t statistic"
+)
+
+# volcano plot (log P-value vs log fold change)
+colnames(fit2) # list contrast names
+ct <- 1 # choose contrast of interest
+volcanoplot(
+  fit2,
+  coef = ct,
+  main = colnames(fit2)[ct],
+  pch = 20,
+  highlight = length(which(dT[, ct] != 0)),
+  names = rep("+", nrow(fit2))
+)
+
+# MD plot (log fold change vs mean log expression)
+# highlight statistically significant (p-adj < 0.05) probes
+plotMD(
+  fit2,
+  column = ct,
+  status = dT[, ct],
+  legend = FALSE,
+  pch = 20,
+  cex = 1
+)
+abline(h = 0)
+
+################################################################
+# # General expression data analysis
+# ex <- exprs(gset)
+
+# # box-and-whisker plot
+# ord <- order(gs) # order samples by group
+# palette(c(
+#   "#1B9E77", "#7570B3", "#E7298A", "#E6AB02", "#D95F02",
+#   "#66A61E", "#A6761D", "#B32424", "#B324B3", "#666666"
+# ))
+# par(mar = c(7, 4, 2, 1))
+# title <- paste("GSE84185", "/", annotation(gset), sep = "")
+# boxplot(ex[, ord], boxwex = 0.6, notch = T, main = title, outline = FALSE, las = 2, col = gs[ord])
+# legend("topleft", groups, fill = palette(), bty = "n")
+
+# # expression value distribution
+# par(mar = c(4, 4, 2, 1))
+# title <- paste("GSE84185", "/", annotation(gset), " value distribution", sep = "")
+# plotDensities(ex, group = gs, main = title, legend = "topright")
+
+# # UMAP plot (dimensionality reduction)
+# ex <- na.omit(ex) # eliminate rows with NAs
+# ex <- ex[!duplicated(ex), ] # remove duplicates
+# ump <- umap(t(ex), n_neighbors = 7, random_state = 123)
+# par(mar = c(3, 3, 2, 6), xpd = TRUE)
+# plot(ump$layout, main = "UMAP plot, nbrs=7", xlab = "", ylab = "", col = gs, pch = 20, cex = 1.5)
+# legend("topright",
+#   inset = c(-0.15, 0), legend = levels(gs), pch = 20,
+#   col = 1:nlevels(gs), title = "Group", pt.cex = 1.5
+# )
+# library("maptools") # point labels without overlaps
+# pointLabel(ump$layout, labels = rownames(ump$layout), method = "SANN", cex = 0.6)
+
+# mean-variance trend, helps to see if precision weights are needed
+plotSA(
+  fit2,
+  main = "Mean variance trend, GSE84185"
+)
+```
+
+```{r resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsToIntegrationOriginalSpecie}
+# Rename Limma columns to match the ones from DESeq2
+setnames(
+  x = tT2,
+  old = c(
+    "AveExpr",
+    "logFC",
+    "P.Value",
+    "adj.P.Val"
+  ),
+  new = c(
+    "baseMean",
+    "log2FoldChange",
+    "pvalue",
+    "padj"
+  )
+)
+
+project <- "GSE84185"
+comparison <- "FluoxetineVsControlForNoStressedInDentateGyrus"
+tT2$project <- project
+tT2$comparison <- comparison
+dea_res[["microarray_v2"]][[project]][[comparison]] <- tT2[
+  !(
+    tT2$Gene.name %like% "," |
+    is.na(tT2$Gene.name) |
+    duplicated(tT2$Gene.name)
+  ),
+  cols_to_for_integration_original_specie
+]
+```
+
+```{r resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsToIntegration}
+tT2 <- tT2[!tT2$ENSEMBL_ID %in% "", ]
+# Probes are ordered by increasing p-value
+# We keep only the one with the best pvalue for each gene
+tT2 <- tT2[!duplicated(tT2$ENSEMBL_ID), ]
+
+best_orth <- gorth(
+  tT2$ENSEMBL_ID,
+  source_organism = "mmusculus",
+  target_organism = "hsapiens",
+  mthreshold = 1,
+  filter_na = FALSE
+)
+
+best_orth <- best_orth[
+  ,
+  !colnames(best_orth) %in% c(
+    "input_number",
+    "input_ensg",
+    "ensg_number"
+  )
+]
+setnames(
+  best_orth,
+  old = c(
+    "ortholog_name",
+    "ortholog_ensg"
+  ),
+  new = c(
+    "hugo_symbol",
+    "ensembl_gene_id"
+  )
+)
+
+tT2 <- merge(
+  tT2,
+  best_orth,
+  by.x = "ENSEMBL_ID",
+  by.y = "input",
+  all.x = TRUE,
+  sort = FALSE
+)
+
+tT2 <- tT2[!tT2$hugo_symbol %in% "N/A", ]
+dea_res[["microarray"]][[project]][[comparison]] <- tT2
+```
+
+
+```{r resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsHeatmapSettings}
+fig_height <- 30
+n_top_genes <- 200
+gsubset <- gset[fData(gset)[["ID"]] %in% tT2[1:n_top_genes, ]$ID, ]
+```
+
+```{r resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsHeatmapRaw, dependson="resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsHeatmapSettings", fig.height=fig_height}
+set.seed(123)
+Heatmap(
+  exprs(gsubset),
+  row_labels = fData(gsubset)$GENE_SYMBOL,
+  #row_labels = tT2[1:n_top_genes, ]$hugo_symbol,
+  top_annotation = HeatmapAnnotation(
+    df = pData(gsubset)[
+      ,
+      c(
+        "hybridization campaign:ch1",
+        "tissue:ch1",
+        "ucms:ch1",
+        "flx:ch1"
+      )
+    ]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+```
+
+```{r resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsHeatmapZscore, dependson="resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettingsHeatmapSettings", fig.height=fig_height}
+set.seed(123)
+Heatmap(
+  scaleRows(exprs(gsubset)),
+  row_labels = fData(gsubset)$GENE_SYMBOL,
+  #row_labels = tT2[1:n_top_genes, ]$hugo_symbol,
+  top_annotation = HeatmapAnnotation(
+    df = pData(gsubset)[
+      ,
+      c(
+        "hybridization campaign:ch1",
+        "tissue:ch1",
+        "ucms:ch1",
+        "flx:ch1"
+      )
+    ]
+  ),
+  name = "RNA signal",
+  column_title = "Samples",
+  row_title = "Genes"
+)
+```
+
+This heatmap was used to check fold change sign is correct for this design:
+As manually verified examples, we can see ASAP1 and ITPA are overexpressed with Fluoxetine, which can be consistently seen on integration dotplots for the design `GSE84185-FluoxetineVsControlForNoStressedInDentateGyrus`.

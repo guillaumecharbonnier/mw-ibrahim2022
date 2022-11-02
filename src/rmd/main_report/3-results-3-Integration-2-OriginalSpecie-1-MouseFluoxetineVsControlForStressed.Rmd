@@ -1,0 +1,565 @@
+### Using original specie Gene.name {#resultsIntegrationOriginalSpecie}
+
+In this section, integration analysis are done without conversion to human ortholog. Conversion from mouse to rat or vice-versa is irrelevant because Gene.name are mostly shared, and when they are not, there is no ortholog available for conversion.
+
+```{r resultsIntegrationOriginalSpecieDefineScoringFunctions}
+computeGammie2019PortraitScore <- function(
+  gene = "Rprm",
+  df = d
+) {
+  d_gene <- df[Gene.name %in% gene,]
+  portrait_score <- {
+    (sum(d_gene$score_up_rank < 1000) - sum(d_gene$score_dn_rank < 1000)) * 1 +
+    (sum(d_gene$score_up_rank < 2000) - sum(d_gene$score_dn_rank < 2000)) * 0.1 +
+    (sum(d_gene$score_up_rank < 3000) - sum(d_gene$score_dn_rank < 3000)) * 0.01 +
+    (sum(d_gene$score_up_rank < 4000) - sum(d_gene$score_dn_rank < 4000)) * 0.001 +
+    (sum(d_gene$score_up_rank < 5000) - sum(d_gene$score_dn_rank < 5000)) * 0.0001 +
+    (sum(d_gene$score_up_rank < 6000) - sum(d_gene$score_dn_rank < 6000)) * 0.00001 +
+    (sum(d_gene$score_up_rank < 7000) - sum(d_gene$score_dn_rank < 7000)) * 0.000001 +
+    (sum(d_gene$score_up_rank < 8000) - sum(d_gene$score_dn_rank < 8000)) * 0.0000001
+  }
+  return(portrait_score)
+}
+computeConsensusScore <- function(
+  gene,
+  df = d,
+  pval_cutoff = 0.05
+) {
+  df$pvalue[is.na(df$pvalue)] <- 1
+  sum(
+    sign(
+      df[
+        df$Gene.name %in% gene & df$pvalue < pval_cutoff,
+        "log2FoldChange"
+      ]
+    )
+  )
+}
+```
+
+#### Mouse Fluoxetine VS Control for Stressed in Dentate Gyrus{#resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressed}
+
+This section corresponds to the first meta-analysis requested by El Chérif.
+
+```{r resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedSettings}
+fig_width <- 34
+fig_height <- 32
+n_cols <- 15
+```
+
+```{r resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedAlphabet, dependson="resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Alphabetically-sorted genes significant in at least one comparison (p-value < 0.05 and pvalue rank < 301). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05)."}
+cols_to_keep <- c(
+  "Gene.name",
+  #"ensembl_gene_id",
+  "baseMean",
+  "log2FoldChange",
+  "pvalue",
+  "padj",
+  "project",
+  "comparison"
+)
+
+# First two columns are removed because they are specie specific
+d <- data.table(
+  rbind(
+    data.frame(dea_res$microarray_v2$GSE43261$FluoxetineResponderVsControl[, cols_to_keep]),
+    #data.frame(dea_res$microarray_v2$GSE84185$StressedFluoxetineVsStressedAloneInDentateGyrus[, cols_to_keep]),
+    data.frame(dea_res$microarray_v2$GSE84185$FluoxetineVsControlForStressedResponderInDentateGyrus[, cols_to_keep]),
+    data.frame(dea_res$microarray_v2$Surget2009$FluoxetineVsSalineForStressedInDentateGyrus[, cols_to_keep]),
+    data.frame(dea_res$rnaseq$SRP057486$FluoxetineVsVehicleForBrainCA1StressedSubset[, cols_to_keep])
+  )
+)
+d <- d[!is.na(d$pvalue), ]
+#d <- d[!d$Gene.name %in% "N/A", ]
+d$design <- paste(
+  d$project,
+  d$comparison,
+  sep = "-"
+)
+designs <- factor(sort(unique(d$design)))
+design_ids <- paste(
+  as.integer(designs),
+  sub(
+    "-.*$",
+    "",
+    designs
+  ),
+  sep = "-"
+)
+d$design <- mapvalues(
+  d$design,
+  from = designs,
+  to = design_ids
+)
+
+knitr::kable(
+  data.frame(
+    id = design_ids,
+    design = designs
+  ),
+  caption = "Mapping between ids and designs used in the integration plots below"
+)
+
+d <- d[order(pvalue)]
+d[, duplicated_Gene_name := duplicated(Gene.name), , by = design]
+d <- d[!(duplicated_Gene_name)]
+d[, pval_rank := rank(pvalue), by=design]
+# Add columns to compute portrait score like Stephen Gammie 2019
+d[, score := -log10(pvalue) * sign(log2FoldChange)]
+d[, score_up_rank := rank(-score), by = design]
+d[, score_dn_rank := rank(score), by = design]
+
+genes <- unique(d$Gene.name)
+names(genes) <- genes
+vec_portrait_scores <- sapply(
+  genes,
+  computeGammie2019PortraitScore
+)
+vec_consensus_scores <- sapply(
+  genes,
+  computeConsensusScore
+)
+d_scores <- data.frame(
+  gene = names(vec_consensus_scores),
+  consensus_score = vec_consensus_scores,
+  portrait_score = vec_portrait_scores
+)
+d_scores <- d_scores[
+  order(
+    d_scores$consensus_score + d_scores$portrait_score,
+    decreasing = TRUE
+  ),
+]
+rm(
+  vec_consensus_scores,
+  vec_portrait_scores
+)
+d <- data.frame(d)
+# Working on a subset because not all genes have a padj from Deseq2
+#ds <- d[!is.na(d$padj), ]
+genes_to_display <- unique(
+  sort(
+    d[
+      d$pvalue < 0.05 &
+      d$pval_rank < 301,
+      "Gene.name"
+    ]
+  )
+)
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$Gene.name %in% gl[[n]], ],
+    y_col = "Gene.name"
+  )
+}
+ggarrange(
+  plotlist = pl,
+  Col = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+```
+
+The xlsx table with all genes is available [here](xlsx/resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedExportAllGenes.xlsx)
+
+```{r resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedExportAllGenes}
+# Export to xlsx
+absMax <- function(x){return(x[which.max(abs(x))])}
+#d <- d[!is.na(d$Gene.name),]
+d_log2FoldChange <- reshape2::dcast(
+  data = data.frame(d),
+  formula = Gene.name ~ design,
+  value.var = "log2FoldChange",
+  fun.aggregate = absMax,
+  fill = 0
+)
+d_log2FoldChange <- d_log2FoldChange[
+  match(
+    d_scores$gene,
+    d_log2FoldChange$Gene.name
+  ),
+]
+d_pvalue <- reshape2::dcast(
+  data = d,
+  formula = Gene.name ~ design,
+  value.var = "pvalue",
+  fun.aggregate = min,
+  fill = 1
+)
+d_pvalue <- d_pvalue[
+  match(
+    d_scores$gene,
+    d_pvalue$Gene.name
+  ),
+]
+d_pval_rank <- reshape2::dcast(
+  data = d,
+  formula = Gene.name ~ design,
+  value.var = "pval_rank",
+  fun.aggregate = min,
+  fill = 99999
+)
+d_pval_rank <- d_pval_rank[
+  match(
+    d_scores$gene,
+    d_pval_rank$Gene.name
+  ),
+]
+wb <- createWorkbook()
+addWorksheet(
+  wb,
+  "log2FoldChange"
+)
+addWorksheet(
+  wb,
+  "pvalue"
+)
+addWorksheet(
+  wb,
+  "pval_rank"
+)
+addWorksheet(
+  wb,
+  "scores"
+)
+writeDataTable(
+  wb,
+  "log2FoldChange",
+  d_log2FoldChange,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "pvalue",
+  d_pvalue,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "pval_rank",
+  d_pval_rank,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "scores",
+  d_scores,
+  startCol = 1
+)
+conditionalFormatting(
+  wb,
+  sheet = "scores",
+  rows = 1:nrow(d_scores) + 1,
+  type = "colourScale",
+  style = c("blue", "white", "red"),
+  rule = c(
+    -length(designs),
+    0,
+    length(designs)
+  ),
+  cols = 2:ncol(d_scores)
+)
+conditionalFormatting(
+  wb,
+  sheet = "pvalue",
+  rows = 1:nrow(d_pvalue) + 1,
+  type = "colourScale",
+  style = c("darkgreen", "white"),
+  rule = c(0, 0.1),
+  cols = 2:ncol(d_pvalue)
+)
+conditionalFormatting(
+  wb,
+  sheet = "pval_rank",
+  rows = 1:nrow(d_pvalue) + 1,
+  type = "colourScale",
+  style = c("darkgreen", "white"),
+  rule = c(1, 300),
+  cols = 2:ncol(d_pvalue)
+)
+conditionalFormatting(
+  wb,
+  sheet = "log2FoldChange",
+  rows = 1:nrow(d_log2FoldChange) + 1,
+  type = "colourScale",
+  style = c("blue", "white", "red"),
+  rule = c(-3, 0, 3),
+  cols = 2:ncol(d_log2FoldChange)
+)
+for (
+  worksheet in c(
+    "pvalue",
+    "log2FoldChange",
+    "pval_rank"
+  )
+) {
+  freezePane(
+    wb,
+    sheet = worksheet,
+    firstRow = TRUE,
+    firstCol = TRUE
+  )
+  headerStyle <- createStyle(
+    # fontSize = 18,
+    # fontName = "Arial",
+    # textDecoration = "bold",
+    # halign = "left",
+    # fgFill = "#1A33CC",
+    # border = "TopBottomLeftRight",
+    textRotation = 90
+  )
+  addStyle(
+    wb,
+    sheet = worksheet,
+    style = headerStyle,
+    rows = 1,
+    cols = 1:ncol(d_pvalue)
+  )
+  setRowHeights(
+    wb,
+    sheet = worksheet,
+    rows = 1,
+    heights = 200
+  )
+  setColWidths(
+    wb,
+    sheet = worksheet,
+    cols = 2:ncol(d_pvalue),
+    widths = 4,
+  )
+  setColWidths(
+    wb,
+    sheet = worksheet,
+    cols = 1,
+    widths = 8,
+  )
+  saveWorkbook(
+    wb,
+    file = file.path(
+      book_from_rmd,
+      "xlsx",
+      paste0(
+        opts_current$get("label"),
+        ".xlsx"
+      )
+    ),
+    overwrite = TRUE
+  )
+}
+```
+
+
+```{r resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedConsensus, dependson="resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedSettings", fig.height=fig_height, fig.width=fig_width, fig.cap="Consensus-sorted genes significant in at least one comparison (p-value < 0.05 and p-value rank < 301). + and – signs highlight respectively upregulated and downregulated genes (|logFoldChange| > 0.1 and raw pvalue < 0.05). Underlying table is available [here](xlsx/resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressedConsensus.xlsx)"}
+consensus_scores <- sapply(
+  genes_to_display,
+  computeConsensusScore,
+  df = d
+)
+genes_to_display <- names(
+  sort(
+    consensus_scores
+  )
+)
+d$Gene.name <- factor(
+  d$Gene.name,
+  levels = genes_to_display
+)
+# Export to xlsx
+absMax <- function(x){return(x[which.max(abs(x))])}
+d <- d[!is.na(d$Gene.name),]
+d_log2FoldChange <- reshape2::dcast(
+  data = data.frame(d),
+  formula = Gene.name ~ design,
+  value.var = "log2FoldChange",
+  fun.aggregate = absMax,
+  fill = 0
+)
+d_pvalue <- reshape2::dcast(
+  data = d,
+  formula = Gene.name ~ design,
+  value.var = "pvalue",
+  fun.aggregate = min,
+  fill = 1
+)
+d_pval_rank <- reshape2::dcast(
+  data = d,
+  formula = Gene.name ~ design,
+  value.var = "pval_rank",
+  fun.aggregate = min,
+  fill = 99999
+)
+d_scores <- d_scores[
+  match(
+    d_pval_rank$Gene.name,
+    d_scores$gene
+  ),
+]
+wb <- createWorkbook()
+addWorksheet(
+  wb,
+  "log2FoldChange"
+)
+addWorksheet(
+  wb,
+  "pvalue"
+)
+addWorksheet(
+  wb,
+  "pval_rank"
+)
+addWorksheet(
+  wb,
+  "scores"
+)
+writeDataTable(
+  wb,
+  "log2FoldChange",
+  d_log2FoldChange,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "pvalue",
+  d_pvalue,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "pval_rank",
+  d_pval_rank,
+  startCol = 1
+)
+writeDataTable(
+  wb,
+  "scores",
+  d_scores,
+  startCol = 1
+)
+conditionalFormatting(
+  wb,
+  sheet = "scores",
+  rows = 1:nrow(d_scores) + 1,
+  type = "colourScale",
+  style = c("blue", "white", "red"),
+  rule = c(
+    -length(designs),
+    0,
+    length(designs)
+  ),
+  cols = 2:ncol(d_scores)
+)
+conditionalFormatting(
+  wb,
+  sheet = "pvalue",
+  rows = 1:nrow(d_pvalue) + 1,
+  type = "colourScale",
+  style = c("darkgreen", "white"),
+  rule = c(0, 0.1),
+  cols = 2:ncol(d_pvalue)
+)
+conditionalFormatting(
+  wb,
+  sheet = "pval_rank",
+  rows = 1:nrow(d_pvalue) + 1,
+  type = "colourScale",
+  style = c("darkgreen", "white"),
+  rule = c(1, 300),
+  cols = 2:ncol(d_pvalue)
+)
+conditionalFormatting(
+  wb,
+  sheet = "log2FoldChange",
+  rows = 1:nrow(d_log2FoldChange) + 1,
+  type = "colourScale",
+  style = c("blue", "white", "red"),
+  rule = c(-3, 0, 3),
+  cols = 2:ncol(d_log2FoldChange)
+)
+for (
+  worksheet in c(
+    "pvalue",
+    "log2FoldChange",
+    "pval_rank"
+  )
+) {
+  freezePane(
+    wb,
+    sheet = worksheet,
+    firstRow = TRUE,
+    firstCol = TRUE
+  )
+  headerStyle <- createStyle(
+    # fontSize = 18,
+    # fontName = "Arial",
+    # textDecoration = "bold",
+    # halign = "left",
+    # fgFill = "#1A33CC",
+    # border = "TopBottomLeftRight",
+    textRotation = 90
+  )
+  addStyle(
+    wb,
+    sheet = worksheet,
+    style = headerStyle,
+    rows = 1,
+    cols = 1:ncol(d_pvalue)
+  )
+  setRowHeights(
+    wb,
+    sheet = worksheet,
+    rows = 1,
+    heights = 200
+  )
+  setColWidths(
+    wb,
+    sheet = worksheet,
+    cols = 2:ncol(d_pvalue),
+    widths = 4,
+  )
+  setColWidths(
+    wb,
+    sheet = worksheet,
+    cols = 1,
+    widths = 8,
+  )
+  saveWorkbook(
+    wb,
+    file = file.path(
+      book_from_rmd,
+      "xlsx",
+      paste0(
+        opts_current$get("label"),
+        ".xlsx"
+      )
+    ),
+    overwrite = TRUE
+  )
+}
+pl <- list() # plot list
+gl <- list() # gene list
+for (n in 1:n_cols) {
+  first_idx <- ceiling((n - 1) / n_cols * length(genes_to_display)) + 1
+  last_idx <- ceiling(n / n_cols * length(genes_to_display))
+  gl[[n]] <- genes_to_display[first_idx:last_idx]
+  pl[[n]] <- plotIntegrationDeaDots(
+    d[d$Gene.name %in% gl[[n]], ],
+    y_col = "Gene.name"
+  )
+}
+ggarrange(
+  plotlist = pl,
+  ncol = length(pl),
+  nrow = 1,
+  align = "hv",
+  common.legend = TRUE
+)
+
+```
+
+

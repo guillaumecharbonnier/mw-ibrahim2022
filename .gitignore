@@ -1,0 +1,15 @@
+#out/
+log/
+doc/
+.snakemake/
+.DS_Store
+.RData
+.Rhistory
+*~
+*.swp
+*.aux
+_bookdown_files
+_main_cache
+_main_files
+eutils_accessionToGeneSummary_cache
+eutils_cache

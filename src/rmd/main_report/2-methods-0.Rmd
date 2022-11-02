@@ -1,0 +1,100 @@
+# Methods
+
+The methods detailed below correspond to the analyses selected in the article. Some sections in this report correspond to additional analyses. Refer to the source code for details.
+
+The analyses were produced using Snakemake (https://doi.org/10.12688/f1000research.29032.1) as workflow manager and R Bookdown for reporting. The source code for all the analyses is available at https://github.com/guillaumecharbonnier/mw-ibrahim2022 and a compiled version of the Bookdown report is available at https://guillaumecharbonnier.github.io/mw-ibrahim2022.
+
+## Individual reprocessing of published experiments
+
+### Microarrays
+
+Normalized microarrays from seven studies (GSE84185, GSE43261, GSE56028, GSE118669, GSE54307, GSE6476 and GSE42940) were retrieved from GEO using GEOquery (https://doi.org/10.1093/bioinformatics/btm254). One last microarray was retrieved directly from original authors (Surget et al, 2009) and was normalized using RMA from the oligo R package (https://dx.doi.org/10.1093%2Fbioinformatics%2Fbtq431). Microarrays latest annotations were retrieved from Ensembl Biomart on [2021-10-01](../../../inp/biomart) for Affymetrix Mouse430_2, Affymetrix Mouse 430A_2, Affymetrix RaGene 1_0_st_v1 and Agilent Sureprint G3_GE_8x60k. When unavailable, annotations from original authors were completed using megablast queries (GSE42940). Probes with mapping to multiple genes were discarded. Differential gene expression analyses were produced with Limma (https://doi.org/10.1093/nar/gkv007).
+
+### RNA-Seq
+
+Raw reads from four studies (SRP056481, SRP057486, SRP084288 and SRP131063) were retrieved from SRA using sra-tools. Reads were trimmed using sickle (-q 20) (https://github.com/najoshi/sickle#citation) and aligned on GRCm38 (for mouse samples) or Rnor6 (for rat samples) with STAR (https://doi.org/10.1093/bioinformatics/bts635) using default settings. Gene-level counts were produced using subread featureCounts (https://doi.org/10.1093/bioinformatics/btt656) with Ensembl release 102 annotations. Differential gene expression analyses were produced with Deseq2 (https://doi.org/10.1186/s13059-014-0550-8) using apeglm shrinkage (10.1093/bioinformatics/bty895).
+
+## Integration plots
+
+To compare differential expression analyses between different experiments, we kept only genes with pvalue below 0.05 and in the top 300 of any compared designs. Plots were produced using R ggplot2 package (https://doi.org/10.1007/978-0-387-98141-3).
+
+*Gene.stable.ID* and *Gene.name* columns come from Biomart annotations while other gene annotations are from the original authors. As such, incomplete concordance is observed.
+
+```{r methodsPrepareBiomartAnnotations}
+microarray_names <- c(
+  "AGILENT_SurePrint_G3_GE_8x60k",
+  "AFFY_Mouse430_2",
+  "AFFY_Mouse430A_2",
+  "AFFY_RaGene_1_0_st_v1"
+)
+names(microarray_names) <- microarray_names
+
+importBiomartAnnotations <- function(microarray_name) {
+  annotations <- fread(
+    paste0(
+      "../../../inp/biomart/",
+      microarray_name,
+      "_probe-Gene_stable_ID-Transcript_stable_ID-Gene_name.txt.gz"
+    ),
+  check.names = TRUE
+  )
+  setnames(
+    annotations,
+    names(annotations[,1]),
+    "probe"
+  )
+  # annotations <- unique(
+  #   annotations,
+  #   by = c(
+  #     "probe",
+  #     "Gene.name"
+  #   )
+  # )
+  annotations[
+    ,
+    Gene.name := paste(
+      unique(Gene.name),
+      collapse=","
+    ),
+    by = "probe"
+  ]
+  annotations[
+    ,
+    Gene.stable.ID := paste(
+      unique(Gene.stable.ID),
+      collapse = ","
+    ),
+    by = "probe"
+  ]
+  # annotations[
+  #   ,
+  #   Exon.stable.ID := paste(
+  #     unique(Exon.stable.ID),
+  #     collapse = ","
+  #   ),
+  #   by = "probe"
+  # ]
+  annotations[
+    ,
+    Transcript.stable.ID := paste(
+      unique(Transcript.stable.ID),
+      collapse = ","
+    ),
+    by = "probe"
+  ]
+  annotations <- unique(annotations)
+}
+
+annotations <- pblapply(
+  microarray_names,
+  importBiomartAnnotations,
+  cl = max_threads
+)
+```
+
+
+## R session environment
+
+```{r methodsSessionEnvironment}
+sessionInfo()
+```

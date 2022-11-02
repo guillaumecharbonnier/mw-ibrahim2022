@@ -1,0 +1,70 @@
+#### Isoform quantification {#resultsRnaseqSRP057486IsoformQuant}
+
+TPM and isoform proportions results are available [here](xlsx/resultsRnaseqSRP057486IsoformQuant.xlsx).
+
+```{r resultsRnaseqSRP057486IsoformQuant}
+SRP057486_metadata$files <- file.path(
+  mw_from_rmd,
+  "out/salmon/quant_fastq_se_-l_A_--validateMappings_--numGibbsSamples_20_--gcBias_salmon-index-GRCm38-ensembl-r102/sickle/se_-t_sanger_-q_20/sra-tools/fastq-dump_se",
+  SRP057486_metadata$accession,
+  "quant.sf"
+)
+
+SRP057486_metadata$names <- paste(
+  SRP057486_metadata$tissue,
+  SRP057486_metadata$treatment,
+  SRP057486_metadata$drug,
+  SRP057486_metadata$animal,
+  sep = "-"
+)
+SRP057486_metadata$names  <- sub(
+  pattern = "^Brain-",
+  replacement = "",
+  SRP057486_metadata$names
+)
+
+
+#SRP057486_metadata$condition <- SRP057486_metadata$cell_type
+se <- tximeta(SRP057486_metadata)
+se <- addIds(
+  se,
+  "SYMBOL",
+  gene = TRUE
+)
+se <- scaleInfReps(se)
+se <- isoformProportions(se)
+
+saveRDS(
+  object = se,
+  file =   file.path(
+    book_from_rmd,
+    "rds",
+    paste0(
+      opts_current$get("label"),
+      ".rds"
+    )
+  )
+)
+
+l <- list()
+#l$counts <- assays(se)$counts
+l$tpm <- assays(se)$abundance
+l$isoProp <- assays(se)$isoProp
+l$transcriptMeta <- mcols(se)
+l$sampleMeta <- colData(se)
+#l$designMeta <- metadata(se)
+
+write.xlsx(
+  l,
+  file.path(
+    book_from_rmd,
+    "xlsx",
+    paste0(
+      opts_current$get("label"),
+      ".xlsx"
+    )
+  )
+)
+```
+
+

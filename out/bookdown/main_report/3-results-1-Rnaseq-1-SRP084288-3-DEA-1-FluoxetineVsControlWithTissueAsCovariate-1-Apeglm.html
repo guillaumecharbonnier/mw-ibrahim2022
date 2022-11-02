@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4.2.3.2 DEA | ANTARES</title>
+  <meta name="description" content="4.2.3.2 DEA | ANTARES" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4.2.3.2 DEA | ANTARES" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4.2.3.2 DEA | ANTARES" />
+  
+  
+  
+
+<meta name="author" content="Guillaume Charbonnier" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="3-results-1-Rnaseq-1-SRP084288-1-PCA.html"/>
+<link rel="next" href="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-2-Normal.html"/>
+<script src="libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.18/datatables.js"></script>
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.20/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="libs/jszip-1.10.20/jszip.min.js"></script>
+<link href="libs/dt-ext-buttons-1.10.20/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="libs/dt-ext-buttons-1.10.20/js/dataTables.buttons.min.js"></script>
+<script src="libs/dt-ext-buttons-1.10.20/js/buttons.flash.min.js"></script>
+<script src="libs/dt-ext-buttons-1.10.20/js/buttons.html5.min.js"></script>
+<script src="libs/dt-ext-buttons-1.10.20/js/buttons.colVis.min.js"></script>
+<script src="libs/dt-ext-buttons-1.10.20/js/buttons.print.min.js"></script>
+<link href="libs/crosstalk-1.1.1/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.1.1/js/crosstalk.min.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Abstract</a></li>
+<li class="chapter" data-level="2" data-path="index.html"><a href="index.html#time-tracking"><i class="fa fa-check"></i><b>2</b> Time-tracking</a></li>
+<li class="chapter" data-level="3" data-path="2-methods-0.html"><a href="2-methods-0.html"><i class="fa fa-check"></i><b>3</b> Methods</a><ul>
+<li class="chapter" data-level="3.1" data-path="2-methods-0.html"><a href="2-methods-0.html#individual-reprocessing-of-published-experiments"><i class="fa fa-check"></i><b>3.1</b> Individual reprocessing of published experiments</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="2-methods-0.html"><a href="2-methods-0.html#microarrays"><i class="fa fa-check"></i><b>3.1.1</b> Microarrays</a></li>
+<li class="chapter" data-level="3.1.2" data-path="2-methods-0.html"><a href="2-methods-0.html#rna-seq"><i class="fa fa-check"></i><b>3.1.2</b> RNA-Seq</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="2-methods-0.html"><a href="2-methods-0.html#integration-plots"><i class="fa fa-check"></i><b>3.2</b> Integration plots</a></li>
+<li class="chapter" data-level="3.3" data-path="2-methods-0.html"><a href="2-methods-0.html#r-session-environment"><i class="fa fa-check"></i><b>3.3</b> R session environment</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="3-results-0.html"><a href="3-results-0.html"><i class="fa fa-check"></i><b>4</b> Results</a><ul>
+<li class="chapter" data-level="4.1" data-path="3-results-1-Microarray-0.html"><a href="3-results-1-Microarray-0.html"><i class="fa fa-check"></i><b>4.1</b> Microarray datasets</a><ul>
+<li class="chapter" data-level="4.1.1" data-path="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.1</b> GSE84185</a><ul>
+<li class="chapter" data-level="4.1.1.1" data-path="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarrayGSE84185StressedVsUnstressed"><i class="fa fa-check"></i><b>4.1.1.1</b> Stressed VS Unstressed</a><ul>
+<li class="chapter" data-level="4.1.1.1.1" data-path="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarrayGSE84185StressedVsUnstressedDefaultSettings"><i class="fa fa-check"></i><b>4.1.1.1.1</b> Default settings</a></li>
+<li class="chapter" data-level="4.1.1.1.2" data-path="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-2-ForceNormalization.html"><a href="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-2-ForceNormalization.html"><i class="fa fa-check"></i><b>4.1.1.1.2</b> Force normalization</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.1.2" data-path="3-results-1-Microarray-1-GSE84185-2-StressedVsUnstressedInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-2-StressedVsUnstressedInDentateGyrus-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.1.2</b> Stressed VS Unstressed in Dentate Gyrus</a><ul>
+<li class="chapter" data-level="4.1.1.2.1" data-path="3-results-1-Microarray-1-GSE84185-2-StressedVsUnstressedInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-2-StressedVsUnstressedInDentateGyrus-1-DefaultSettings.html#resultsMicroarrayGSE84185StressedVsUnstressedInDentateGyrusDefaultSettings"><i class="fa fa-check"></i><b>4.1.1.2.1</b> Default settings</a></li>
+<li class="chapter" data-level="4.1.1.2.2" data-path="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-2-ForceNormalization.html"><a href="3-results-1-Microarray-1-GSE84185-1-StressedVsUnstressed-2-ForceNormalization.html#resultsMicroarrayGSE84185StressedVsUnstressedForceNormalization"><i class="fa fa-check"></i><b>4.1.1.2.2</b> Force normalization</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.1.3" data-path="3-results-1-Microarray-1-GSE84185-3-StressedFluoxetineVsStressedAloneInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-3-StressedFluoxetineVsStressedAloneInDentateGyrus-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.1.3</b> Fluoxetine VS Control For Stressed in Dentate Gyrus</a><ul>
+<li class="chapter" data-level="4.1.1.3.1" data-path="3-results-1-Microarray-1-GSE84185-3-StressedFluoxetineVsStressedAloneInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-3-StressedFluoxetineVsStressedAloneInDentateGyrus-1-DefaultSettings.html#resultsMicroarrayGSE84185StressedFluoxetineVsStressedAloneInDentateGyrusDefaultSettings"><i class="fa fa-check"></i><b>4.1.1.3.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.1.4" data-path="3-results-1-Microarray-1-GSE84185-4-FluoxetineVsControlForNoStressedInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-4-FluoxetineVsControlForNoStressedInDentateGyrus-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.1.4</b> Fluoxetine VS Control for No Stressed in Dentate Gyrus</a><ul>
+<li class="chapter" data-level="4.1.1.4.1" data-path="3-results-1-Microarray-1-GSE84185-4-FluoxetineVsControlForNoStressedInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-4-FluoxetineVsControlForNoStressedInDentateGyrus-1-DefaultSettings.html#resultsMicroarrayGSE84185FluoxetineVsControlForNoStressedInDentateGyrusDefaultSettings"><i class="fa fa-check"></i><b>4.1.1.4.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.1.5" data-path="3-results-1-Microarray-1-GSE84185-5-FluoxetineVsControlForStressedResponderInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-5-FluoxetineVsControlForStressedResponderInDentateGyrus-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.1.5</b> Fluoxetine VS Control for Stressed Responder in Dentate Gyrus</a><ul>
+<li class="chapter" data-level="4.1.1.5.1" data-path="3-results-1-Microarray-1-GSE84185-5-FluoxetineVsControlForStressedResponderInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-5-FluoxetineVsControlForStressedResponderInDentateGyrus-1-DefaultSettings.html#resultsMicroarrayGSE84185FluoxetineVsControlForStressedResponderInDentateGyrusDefaultSettings"><i class="fa fa-check"></i><b>4.1.1.5.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.1.6" data-path="3-results-1-Microarray-1-GSE84185-6-FluoxetineVsControlForStressedNonResponderInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-6-FluoxetineVsControlForStressedNonResponderInDentateGyrus-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.1.6</b> Fluoxetine VS Control for Stressed NonResponder in Dentate Gyrus</a><ul>
+<li class="chapter" data-level="4.1.1.6.1" data-path="3-results-1-Microarray-1-GSE84185-6-FluoxetineVsControlForStressedNonResponderInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-1-GSE84185-6-FluoxetineVsControlForStressedNonResponderInDentateGyrus-1-DefaultSettings.html#resultsMicroarrayGSE84185FluoxetineVsControlForStressedNonResponderInDentateGyrusDefaultSettings"><i class="fa fa-check"></i><b>4.1.1.6.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.2" data-path="3-results-1-Microarray-2-GSE43261-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-2-GSE43261-1-StressedVsUnstressed-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.2</b> GSE43261</a><ul>
+<li class="chapter" data-level="4.1.2.1" data-path="3-results-1-Microarray-2-GSE43261-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-2-GSE43261-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarrayGSE43261StressedVsUnstressed"><i class="fa fa-check"></i><b>4.1.2.1</b> Stressed VS Unstressed</a><ul>
+<li class="chapter" data-level="4.1.2.1.1" data-path="3-results-1-Microarray-2-GSE43261-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-2-GSE43261-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarrayGSE43261StressedVsUnstressedDefaultSettings"><i class="fa fa-check"></i><b>4.1.2.1.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.2.2" data-path="3-results-1-Microarray-2-GSE43261-2-FluoxetineResponderVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-2-GSE43261-2-FluoxetineResponderVsControl-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.2.2</b> Fluoxetine Responder VS Control for Stressed mice</a><ul>
+<li class="chapter" data-level="4.1.2.2.1" data-path="3-results-1-Microarray-2-GSE43261-2-FluoxetineResponderVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-2-GSE43261-2-FluoxetineResponderVsControl-1-DefaultSettings.html#resultsMicroarrayGSE43261FluoxetineResponderVsControlDefaultSettings"><i class="fa fa-check"></i><b>4.1.2.2.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.3" data-path="3-results-1-Microarray-3-GSE56028-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-3-GSE56028-1-StressedVsUnstressed-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.3</b> GSE56028</a><ul>
+<li class="chapter" data-level="4.1.3.1" data-path="3-results-1-Microarray-3-GSE56028-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-3-GSE56028-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarrayGSE56028StressedVsUnstressed"><i class="fa fa-check"></i><b>4.1.3.1</b> Stressed VS Unstressed</a><ul>
+<li class="chapter" data-level="4.1.3.1.1" data-path="3-results-1-Microarray-3-GSE56028-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-3-GSE56028-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarrayGSE56028StressedVsUnstressedDefaultSettings"><i class="fa fa-check"></i><b>4.1.3.1.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.3.2" data-path="3-results-1-Microarray-3-GSE56028-2-FluoxetineVsUntreatedForStressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-3-GSE56028-2-FluoxetineVsUntreatedForStressed-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.3.2</b> Fluoxetine VS Untreated for stressed rats</a><ul>
+<li class="chapter" data-level="4.1.3.2.1" data-path="3-results-1-Microarray-3-GSE56028-2-FluoxetineVsUntreatedForStressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-3-GSE56028-2-FluoxetineVsUntreatedForStressed-1-DefaultSettings.html#resultsMicroarrayGSE56028FluoxetineVsUntreatedForStressedDefaultSettings"><i class="fa fa-check"></i><b>4.1.3.2.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.4" data-path="3-results-1-Microarray-4-GSE118669-1-FluoxetineVsVehicle-1-DefaultSettings.html"><a href="3-results-1-Microarray-4-GSE118669-1-FluoxetineVsVehicle-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.4</b> GSE118669</a><ul>
+<li class="chapter" data-level="4.1.4.1" data-path="3-results-1-Microarray-4-GSE118669-1-FluoxetineVsVehicle-1-DefaultSettings.html"><a href="3-results-1-Microarray-4-GSE118669-1-FluoxetineVsVehicle-1-DefaultSettings.html#resultsMicroarrayGSE118669FluoxetineVsVehicle"><i class="fa fa-check"></i><b>4.1.4.1</b> Fluoxetine VS Vehicle</a><ul>
+<li class="chapter" data-level="4.1.4.1.1" data-path="3-results-1-Microarray-4-GSE118669-1-FluoxetineVsVehicle-1-DefaultSettings.html"><a href="3-results-1-Microarray-4-GSE118669-1-FluoxetineVsVehicle-1-DefaultSettings.html#resultsMicroarrayGSE118669FluoxetineVsVehicleDefaultSettings"><i class="fa fa-check"></i><b>4.1.4.1.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.5" data-path="3-results-1-Microarray-5-GSE54307-1-FluoxetineVsOther-1-DefaultSettings.html"><a href="3-results-1-Microarray-5-GSE54307-1-FluoxetineVsOther-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.5</b> GSE54307</a><ul>
+<li class="chapter" data-level="4.1.5.1" data-path="3-results-1-Microarray-5-GSE54307-1-FluoxetineVsOther-1-DefaultSettings.html"><a href="3-results-1-Microarray-5-GSE54307-1-FluoxetineVsOther-1-DefaultSettings.html#resultsMicroarrayGSE54307FluoxetineVsOther"><i class="fa fa-check"></i><b>4.1.5.1</b> Fluoxetine VS Other</a><ul>
+<li class="chapter" data-level="4.1.5.1.1" data-path="3-results-1-Microarray-5-GSE54307-1-FluoxetineVsOther-1-DefaultSettings.html"><a href="3-results-1-Microarray-5-GSE54307-1-FluoxetineVsOther-1-DefaultSettings.html#resultsMicroarrayGSE54307FluoxetineVsOtherDefaultSettings"><i class="fa fa-check"></i><b>4.1.5.1.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.5.2" data-path="3-results-1-Microarray-5-GSE54307-2-FluoxetineVsVehicle-1-DefaultSettings.html"><a href="3-results-1-Microarray-5-GSE54307-2-FluoxetineVsVehicle-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.5.2</b> Fluoxetine VS Vehicle</a><ul>
+<li class="chapter" data-level="4.1.5.2.1" data-path="3-results-1-Microarray-5-GSE54307-2-FluoxetineVsVehicle-1-DefaultSettings.html"><a href="3-results-1-Microarray-5-GSE54307-2-FluoxetineVsVehicle-1-DefaultSettings.html#resultsMicroarrayGSE54307FluoxetineVsVehicleDefaultSettings"><i class="fa fa-check"></i><b>4.1.5.2.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.6" data-path="3-results-1-Microarray-6-GSE6476-1-FluoxetineVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-6-GSE6476-1-FluoxetineVsControl-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.6</b> GSE6476</a><ul>
+<li class="chapter" data-level="4.1.6.1" data-path="3-results-1-Microarray-6-GSE6476-1-FluoxetineVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-6-GSE6476-1-FluoxetineVsControl-1-DefaultSettings.html#resultsMicroarrayGSE6476StressedVsUnstressed"><i class="fa fa-check"></i><b>4.1.6.1</b> Stressed VS Unstressed</a><ul>
+<li class="chapter" data-level="4.1.6.1.1" data-path="3-results-1-Microarray-6-GSE6476-1-FluoxetineVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-6-GSE6476-1-FluoxetineVsControl-1-DefaultSettings.html#resultsMicroarrayGSE6476StressedVsUnstressedDefaultSettings"><i class="fa fa-check"></i><b>4.1.6.1.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.7" data-path="3-results-1-Microarray-7-GSE42940-1-FluoxetineVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-7-GSE42940-1-FluoxetineVsControl-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.7</b> GSE42940</a><ul>
+<li class="chapter" data-level="4.1.7.1" data-path="3-results-1-Microarray-7-GSE42940-1-FluoxetineVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-7-GSE42940-1-FluoxetineVsControl-1-DefaultSettings.html#resultsMicroarrayGSE42940FluoxetineVsControl"><i class="fa fa-check"></i><b>4.1.7.1</b> Fluoxetine VS Control</a><ul>
+<li class="chapter" data-level="4.1.7.1.1" data-path="3-results-1-Microarray-7-GSE42940-1-FluoxetineVsControl-1-DefaultSettings.html"><a href="3-results-1-Microarray-7-GSE42940-1-FluoxetineVsControl-1-DefaultSettings.html#resultsMicroarrayGSE42940FluoxetineVsControlDefaultSettings"><i class="fa fa-check"></i><b>4.1.7.1.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.1.8" data-path="3-results-1-Microarray-8-Surget2009-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-8-Surget2009-1-StressedVsUnstressed-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.8</b> Surget 2009</a><ul>
+<li class="chapter" data-level="4.1.8.1" data-path="3-results-1-Microarray-8-Surget2009-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-8-Surget2009-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarraySurget2009StressedVsUnstressed"><i class="fa fa-check"></i><b>4.1.8.1</b> Stressed VS Unstressed</a><ul>
+<li class="chapter" data-level="4.1.8.1.1" data-path="3-results-1-Microarray-8-Surget2009-1-StressedVsUnstressed-1-DefaultSettings.html"><a href="3-results-1-Microarray-8-Surget2009-1-StressedVsUnstressed-1-DefaultSettings.html#resultsMicroarraySurget2009StressedVsUnstressedDefaultSettings"><i class="fa fa-check"></i><b>4.1.8.1.1</b> Default settings</a></li>
+</ul></li>
+<li class="chapter" data-level="4.1.8.2" data-path="3-results-1-Microarray-8-Surget2009-2-FluoxetineVsSalineForStressedInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-8-Surget2009-2-FluoxetineVsSalineForStressedInDentateGyrus-1-DefaultSettings.html"><i class="fa fa-check"></i><b>4.1.8.2</b> Fluoxetine VS Saline for stressed in Dentate Gyrus</a><ul>
+<li class="chapter" data-level="4.1.8.2.1" data-path="3-results-1-Microarray-8-Surget2009-2-FluoxetineVsSalineForStressedInDentateGyrus-1-DefaultSettings.html"><a href="3-results-1-Microarray-8-Surget2009-2-FluoxetineVsSalineForStressedInDentateGyrus-1-DefaultSettings.html#resultsMicroarraySurget2009FluoxetineVsSalineForStressedInDentateGyrusDefaultSettings"><i class="fa fa-check"></i><b>4.1.8.2.1</b> Default settings</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="3-results-1-Rnaseq-0.html"><a href="3-results-1-Rnaseq-0.html"><i class="fa fa-check"></i><b>4.2</b> RNA-Seq datasets</a><ul>
+<li class="chapter" data-level="4.2.1" data-path="3-results-1-Rnaseq-1-SRP056481-0.html"><a href="3-results-1-Rnaseq-1-SRP056481-0.html"><i class="fa fa-check"></i><b>4.2.1</b> SRP056481</a><ul>
+<li class="chapter" data-level="4.2.1.1" data-path="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.1.1</b> DEA</a><ul>
+<li class="chapter" data-level="4.2.1.1.1" data-path="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-1-Apeglm.html#resultsRnaseqSRP056481FluoxetineVsMethylcelluloseComputeDeseq2"><i class="fa fa-check"></i><b>4.2.1.1.1</b> Fluoxetine VS Methylcellulose</a><ul>
+<li class="chapter" data-level="4.2.1.1.1.1" data-path="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-1-Apeglm.html#resultsRnaseqSRP056481FluoxetineVsMethylcelluloseApeglmComputeDeseq2"><i class="fa fa-check"></i><b>4.2.1.1.1.1</b> Apeglm shrinkage</a></li>
+<li class="chapter" data-level="4.2.1.1.1.2" data-path="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-2-Ashr.html"><a href="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-2-Ashr.html"><i class="fa fa-check"></i><b>4.2.1.1.1.2</b> Ashr shrinkage</a></li>
+<li class="chapter" data-level="4.2.1.1.1.3" data-path="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-3-Normal.html"><a href="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-3-Normal.html"><i class="fa fa-check"></i><b>4.2.1.1.1.3</b> Normal shrinkage</a></li>
+<li class="chapter" data-level="4.2.1.1.1.4" data-path="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-4-NormalLowerFCThreshold.html"><a href="3-results-1-Rnaseq-1-SRP056481-3-DEA-1-FluoxetineVsMethylcellulose-4-NormalLowerFCThreshold.html"><i class="fa fa-check"></i><b>4.2.1.1.1.4</b> Normal shrinkage with lower FC Threshold</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.2.1.2" data-path="3-results-1-Rnaseq-1-SRP056481-4-IsoformQuant.html"><a href="3-results-1-Rnaseq-1-SRP056481-4-IsoformQuant.html"><i class="fa fa-check"></i><b>4.2.1.2</b> Isoform quantification</a></li>
+<li class="chapter" data-level="4.2.1.3" data-path="3-results-1-Rnaseq-1-SRP056481-5-DTU-1-FluoxetineVsMethylcellulose.html"><a href="3-results-1-Rnaseq-1-SRP056481-5-DTU-1-FluoxetineVsMethylcellulose.html"><i class="fa fa-check"></i><b>4.2.1.3</b> DTU</a><ul>
+<li class="chapter" data-level="4.2.1.3.1" data-path="3-results-1-Rnaseq-1-SRP056481-5-DTU-1-FluoxetineVsMethylcellulose.html"><a href="3-results-1-Rnaseq-1-SRP056481-5-DTU-1-FluoxetineVsMethylcellulose.html#resultsRnaseqSRP056481DTUFluoxetineVsMethylcellulose"><i class="fa fa-check"></i><b>4.2.1.3.1</b> Fluoxetine VS Methylcellulose</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.2.2" data-path="3-results-1-Rnaseq-1-SRP057486-0.html"><a href="3-results-1-Rnaseq-1-SRP057486-0.html"><i class="fa fa-check"></i><b>4.2.2</b> SRP057486</a><ul>
+<li class="chapter" data-level="4.2.2.1" data-path="3-results-1-Rnaseq-1-SRP057486-1-PCA.html"><a href="3-results-1-Rnaseq-1-SRP057486-1-PCA.html"><i class="fa fa-check"></i><b>4.2.2.1</b> PCA</a></li>
+<li class="chapter" data-level="4.2.2.2" data-path="3-results-1-Rnaseq-1-SRP057486-2-UMAP.html"><a href="3-results-1-Rnaseq-1-SRP057486-2-UMAP.html"><i class="fa fa-check"></i><b>4.2.2.2</b> UMAP</a></li>
+<li class="chapter" data-level="4.2.2.3" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.2.3</b> DEA</a><ul>
+<li class="chapter" data-level="4.2.2.3.1" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-1-Apeglm.html#resultsRnaseqSRP057486FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates"><i class="fa fa-check"></i><b>4.2.2.3.1</b> Fluoxetine VS Vehicle with Tissue and Treatment as covariates</a><ul>
+<li class="chapter" data-level="4.2.2.3.1.1" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-1-Apeglm.html#resultsRnaseqSRP057486FluoxetineVsVehicleWithTissueAndTreatmentAsCovariatesApeglm"><i class="fa fa-check"></i><b>4.2.2.3.1.1</b> Apgelm shrinkage</a></li>
+<li class="chapter" data-level="4.2.2.3.1.2" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-1-FluoxetineVsVehicleWithTissueAndTreatmentAsCovariates-2-Normal.html"><i class="fa fa-check"></i><b>4.2.2.3.1.2</b> Normal shrinkage</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.2.3.2" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.2.3.2</b> Fluoxetine VS Vehicle for Brain CA1 subset with Treatment as covariate</a><ul>
+<li class="chapter" data-level="4.2.2.3.2.1" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates-1-Apeglm.html#resultsRnaseqSRP057486FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariatesApeglm"><i class="fa fa-check"></i><b>4.2.2.3.2.1</b> Apeglm shrinkage</a></li>
+<li class="chapter" data-level="4.2.2.3.2.2" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariates-2-Normal.html"><i class="fa fa-check"></i><b>4.2.2.3.2.2</b> Normal shrinkage</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.2.3.3" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-3-FluoxetineVsVehicleForBrainCA1Shocked-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-3-FluoxetineVsVehicleForBrainCA1Shocked-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.2.3.3</b> Fluoxetine VS Vehicle for Brain CA1 and Stressed subset</a><ul>
+<li class="chapter" data-level="4.2.2.3.3.1" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-3-FluoxetineVsVehicleForBrainCA1Shocked-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-3-FluoxetineVsVehicleForBrainCA1Shocked-1-Apeglm.html#resultsRnaseqSRP057486FluoxetineVsVehicleForBrainCA1StressedSubsetApeglm"><i class="fa fa-check"></i><b>4.2.2.3.3.1</b> Apeglm shrinkage</a></li>
+<li class="chapter" data-level="4.2.2.3.3.2" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-3-FluoxetineVsVehicleForBrainCA1Shocked-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-3-FluoxetineVsVehicleForBrainCA1Shocked-2-Normal.html"><i class="fa fa-check"></i><b>4.2.2.3.3.2</b> Normal shrinkage</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.2.3.4" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-4-FluoxetineVsVehicleForBrainCA1NonShocked-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-4-FluoxetineVsVehicleForBrainCA1NonShocked-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.2.3.4</b> Fluoxetine VS Vehicle for Brain CA1 and non-shocked</a><ul>
+<li class="chapter" data-level="4.2.2.3.4.1" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-4-FluoxetineVsVehicleForBrainCA1NonShocked-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-4-FluoxetineVsVehicleForBrainCA1NonShocked-1-Apeglm.html#resultsRnaseqSRP057486FluoxetineVsVehicleForBrainCA1NonShockedApeglm"><i class="fa fa-check"></i><b>4.2.2.3.4.1</b> Apeglm shrinkage</a></li>
+<li class="chapter" data-level="4.2.2.3.4.2" data-path="3-results-1-Rnaseq-1-SRP057486-3-DEA-4-FluoxetineVsVehicleForBrainCA1NonShocked-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP057486-3-DEA-4-FluoxetineVsVehicleForBrainCA1NonShocked-2-Normal.html"><i class="fa fa-check"></i><b>4.2.2.3.4.2</b> Normal shrinkage</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.2.2.4" data-path="3-results-1-Rnaseq-1-SRP057486-4-IsoformQuant.html"><a href="3-results-1-Rnaseq-1-SRP057486-4-IsoformQuant.html"><i class="fa fa-check"></i><b>4.2.2.4</b> Isoform quantification</a></li>
+<li class="chapter" data-level="4.2.2.5" data-path="3-results-1-Rnaseq-1-SRP057486-5-DTU-1-FluoxetineVsVehicle.html"><a href="3-results-1-Rnaseq-1-SRP057486-5-DTU-1-FluoxetineVsVehicle.html"><i class="fa fa-check"></i><b>4.2.2.5</b> DTU</a><ul>
+<li class="chapter" data-level="4.2.2.5.1" data-path="3-results-1-Rnaseq-1-SRP057486-5-DTU-1-FluoxetineVsVehicle.html"><a href="3-results-1-Rnaseq-1-SRP057486-5-DTU-1-FluoxetineVsVehicle.html#resultsRnaseqSRP057486DTUFluoxetineVsVehicle"><i class="fa fa-check"></i><b>4.2.2.5.1</b> Fluoxetine VS Vehicle</a></li>
+<li class="chapter" data-level="4.2.2.5.2" data-path="3-results-1-Rnaseq-1-SRP057486-5-DTU-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariate.html"><a href="3-results-1-Rnaseq-1-SRP057486-5-DTU-2-FluoxetineVsVehicleForBrainCA1SubsetWithTreatmentAsCovariate.html"><i class="fa fa-check"></i><b>4.2.2.5.2</b> Fluoxetine VS Vehicle for Brain CA1 subset with Treatment as covariate</a></li>
+<li class="chapter" data-level="4.2.2.5.3" data-path="3-results-1-Rnaseq-1-SRP057486-5-DTU-3-FluoxetineVsVehicleForBrainCA1SubsetShocked.html"><a href="3-results-1-Rnaseq-1-SRP057486-5-DTU-3-FluoxetineVsVehicleForBrainCA1SubsetShocked.html"><i class="fa fa-check"></i><b>4.2.2.5.3</b> Fluoxetine VS Vehicle for Brain CA1 shocked subset</a></li>
+<li class="chapter" data-level="4.2.2.5.4" data-path="3-results-1-Rnaseq-1-SRP057486-5-DTU-4-FluoxetineVsVehicleForBrainCA1NonShocked.html"><a href="3-results-1-Rnaseq-1-SRP057486-5-DTU-4-FluoxetineVsVehicleForBrainCA1NonShocked.html"><i class="fa fa-check"></i><b>4.2.2.5.4</b> Fluoxetine VS Vehicle for Brain CA1 NonShocked subset</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.2.3" data-path="3-results-1-Rnaseq-1-SRP084288-0.html"><a href="3-results-1-Rnaseq-1-SRP084288-0.html"><i class="fa fa-check"></i><b>4.2.3</b> SRP084288</a><ul>
+<li class="chapter" data-level="4.2.3.1" data-path="3-results-1-Rnaseq-1-SRP084288-1-PCA.html"><a href="3-results-1-Rnaseq-1-SRP084288-1-PCA.html"><i class="fa fa-check"></i><b>4.2.3.1</b> PCA</a></li>
+<li class="chapter" data-level="4.2.3.2" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.3.2</b> DEA</a><ul>
+<li class="chapter" data-level="4.2.3.2.1" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-1-Apeglm.html#resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariate"><i class="fa fa-check"></i><b>4.2.3.2.1</b> Fluoxetine VS Control with Tissue as covariate</a><ul>
+<li class="chapter" data-level="4.2.3.2.1.1" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-1-Apeglm.html#resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariateApeglm"><i class="fa fa-check"></i><b>4.2.3.2.1.1</b> Apeglm shrinkage</a></li>
+<li class="chapter" data-level="4.2.3.2.1.2" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-2-Normal.html"><i class="fa fa-check"></i><b>4.2.3.2.1.2</b> Normal shrinkage</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.3.2.2" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-2-FluoxetineVsControlInHyppocampus.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-2-FluoxetineVsControlInHyppocampus.html"><i class="fa fa-check"></i><b>4.2.3.2.2</b> Fluoxetine VS Control in Hippocampus</a></li>
+<li class="chapter" data-level="4.2.3.2.3" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-3-FluoxetineVsModelOfDepressionWithTissueAsCovariate-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-3-FluoxetineVsModelOfDepressionWithTissueAsCovariate-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.3.2.3</b> Fluoxetine VS ModelOfDepression with Tissue as covariate</a><ul>
+<li class="chapter" data-level="4.2.3.2.3.1" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-3-FluoxetineVsModelOfDepressionWithTissueAsCovariate-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-3-FluoxetineVsModelOfDepressionWithTissueAsCovariate-1-Apeglm.html#resultsRnaseqSRP084288FluoxetineVsModelOfDepressionWithTissueAsCovariateApeglm"><i class="fa fa-check"></i><b>4.2.3.2.3.1</b> Apeglm shrinkage</a></li>
+<li class="chapter" data-level="4.2.3.2.3.2" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-3-FluoxetineVsModelOfDepressionWithTissueAsCovariate-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-3-FluoxetineVsModelOfDepressionWithTissueAsCovariate-2-Normal.html"><i class="fa fa-check"></i><b>4.2.3.2.3.2</b> Normal shrinkage</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.3.2.4" data-path="3-results-1-Rnaseq-1-SRP084288-3-DEA-4-FluoxetineVsModelOfDepressionInHyppocampus.html"><a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-4-FluoxetineVsModelOfDepressionInHyppocampus.html"><i class="fa fa-check"></i><b>4.2.3.2.4</b> Fluoxetine VS ModelOfDepression in Hippocampus</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.3.3" data-path="3-results-1-Rnaseq-1-SRP084288-4-IsoformQuant.html"><a href="3-results-1-Rnaseq-1-SRP084288-4-IsoformQuant.html"><i class="fa fa-check"></i><b>4.2.3.3</b> Isoform quantification</a></li>
+<li class="chapter" data-level="4.2.3.4" data-path="3-results-1-Rnaseq-1-SRP084288-5-DTU-1-FluoxetineVsControlWithTissueAsCovariate.html"><a href="3-results-1-Rnaseq-1-SRP084288-5-DTU-1-FluoxetineVsControlWithTissueAsCovariate.html"><i class="fa fa-check"></i><b>4.2.3.4</b> DTU</a><ul>
+<li class="chapter" data-level="4.2.3.4.1" data-path="3-results-1-Rnaseq-1-SRP084288-5-DTU-1-FluoxetineVsControlWithTissueAsCovariate.html"><a href="3-results-1-Rnaseq-1-SRP084288-5-DTU-1-FluoxetineVsControlWithTissueAsCovariate.html#resultsRnaseqSRP084288DTUFluoxetineVsControlWithTissueAsCovariate"><i class="fa fa-check"></i><b>4.2.3.4.1</b> Fluoxetine VS Control</a></li>
+<li class="chapter" data-level="4.2.3.4.2" data-path="3-results-1-Rnaseq-1-SRP084288-5-DTU-2-FluoxetineVsModelOfDepressionWithTissueAsCovariate.html"><a href="3-results-1-Rnaseq-1-SRP084288-5-DTU-2-FluoxetineVsModelOfDepressionWithTissueAsCovariate.html"><i class="fa fa-check"></i><b>4.2.3.4.2</b> Fluoxetine VS ModelOfDepression</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.3.5" data-path="3-results-1-Rnaseq-1-SRP084288-6-CheckSex.html"><a href="3-results-1-Rnaseq-1-SRP084288-6-CheckSex.html"><i class="fa fa-check"></i><b>4.2.3.5</b> Check Sex</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.4" data-path="3-results-1-Rnaseq-1-SRP131063-0.html"><a href="3-results-1-Rnaseq-1-SRP131063-0.html"><i class="fa fa-check"></i><b>4.2.4</b> SRP131063</a><ul>
+<li class="chapter" data-level="4.2.4.1" data-path="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-1-Apeglm.html"><i class="fa fa-check"></i><b>4.2.4.1</b> DEA</a><ul>
+<li class="chapter" data-level="4.2.4.1.1" data-path="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-1-Apeglm.html#resultsRnaseqSRP131063FluoxetineVsSalineForStressed"><i class="fa fa-check"></i><b>4.2.4.1.1</b> Fluoxetine VS Saline for Stressed</a><ul>
+<li class="chapter" data-level="4.2.4.1.1.1" data-path="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-1-Apeglm.html"><a href="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-1-Apeglm.html#resultsRnaseqSRP131063FluoxetineVsSalineForStressedApeglm"><i class="fa fa-check"></i><b>4.2.4.1.1.1</b> Apeglm</a></li>
+<li class="chapter" data-level="4.2.4.1.1.2" data-path="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-2-Normal.html"><a href="3-results-1-Rnaseq-1-SRP131063-3-DEA-1-FluoxetineVsSaline-2-Normal.html"><i class="fa fa-check"></i><b>4.2.4.1.1.2</b> Normal</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4.2.4.2" data-path="3-results-1-Rnaseq-1-SRP131063-4-IsoformQuant.html"><a href="3-results-1-Rnaseq-1-SRP131063-4-IsoformQuant.html"><i class="fa fa-check"></i><b>4.2.4.2</b> Isoform quantification</a></li>
+<li class="chapter" data-level="4.2.4.3" data-path="3-results-1-Rnaseq-1-SRP131063-5-DTU-1-FluoxetineVsSaline.html"><a href="3-results-1-Rnaseq-1-SRP131063-5-DTU-1-FluoxetineVsSaline.html"><i class="fa fa-check"></i><b>4.2.4.3</b> DTU</a><ul>
+<li class="chapter" data-level="4.2.4.3.1" data-path="3-results-1-Rnaseq-1-SRP131063-5-DTU-1-FluoxetineVsSaline.html"><a href="3-results-1-Rnaseq-1-SRP131063-5-DTU-1-FluoxetineVsSaline.html#resultsRnaseqSRP131063DTUFluoxetineVsMethylcellulose"><i class="fa fa-check"></i><b>4.2.4.3.1</b> Fluoxetine VS Methylcellulose</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.4.4" data-path="3-results-1-Rnaseq-1-SRP131063-6-CheckSex.html"><a href="3-results-1-Rnaseq-1-SRP131063-6-CheckSex.html"><i class="fa fa-check"></i><b>4.2.4.4</b> Check Sex</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2.5" data-path="3-results-1-Rnaseq-2-CheckSexControl.html"><a href="3-results-1-Rnaseq-2-CheckSexControl.html"><i class="fa fa-check"></i><b>4.2.5</b> Check Sex Control (GSE195833)</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="3-results-3-Integration-0.html"><a href="3-results-3-Integration-0.html"><i class="fa fa-check"></i><b>4.3</b> Integration</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="3-results-3-Integration-1-ToHumanOrtholog-1-MouseFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-1-MouseFluoxetineVsControlForStressed.html"><i class="fa fa-check"></i><b>4.3.1</b> To closest human ortholog</a><ul>
+<li class="chapter" data-level="4.3.1.1" data-path="3-results-3-Integration-1-ToHumanOrtholog-1-MouseFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-1-MouseFluoxetineVsControlForStressed.html#resultsIntegrationMouseFluoxetineVsControlForStressed"><i class="fa fa-check"></i><b>4.3.1.1</b> Mouse Fluoxetine VS Control for Stressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.1.2" data-path="3-results-3-Integration-1-ToHumanOrtholog-2-RatFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-2-RatFluoxetineVsControlForStressed.html"><i class="fa fa-check"></i><b>4.3.1.2</b> Rat Stress Alone VS Stress Fluoxetine in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.1.3" data-path="3-results-3-Integration-1-ToHumanOrtholog-3-RatMouseFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-3-RatMouseFluoxetineVsControlForStressed.html"><i class="fa fa-check"></i><b>4.3.1.3</b> Rat+Mouse Fluoxetine VS Control for Stressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.1.4" data-path="3-results-3-Integration-1-ToHumanOrtholog-4-MouseFluoxetineVsControlForNoStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-4-MouseFluoxetineVsControlForNoStressed.html"><i class="fa fa-check"></i><b>4.3.1.4</b> Mouse Fluoxetine VS Control for NoStressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.1.5" data-path="3-results-3-Integration-1-ToHumanOrtholog-5-RatFluoxetineVsControlForNoStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-5-RatFluoxetineVsControlForNoStressed.html"><i class="fa fa-check"></i><b>4.3.1.5</b> Rat Fluoxetine VS Control for NoStressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.1.6" data-path="3-results-3-Integration-1-ToHumanOrtholog-6-RatMouseFluoxetineVsControlForNoStressed.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-6-RatMouseFluoxetineVsControlForNoStressed.html"><i class="fa fa-check"></i><b>4.3.1.6</b> Rat+Mouse Fluoxetine VS Control for NoStressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.1.7" data-path="3-results-3-Integration-1-ToHumanOrtholog-7-RatMouseFluoxetineVsControlForStressedAndNoStress.html"><a href="3-results-3-Integration-1-ToHumanOrtholog-7-RatMouseFluoxetineVsControlForStressedAndNoStress.html"><i class="fa fa-check"></i><b>4.3.1.7</b> Rat+Mouse Fluoxetine VS Control for Stressed and no stressed in Dentate Gyrus</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3.2" data-path="3-results-3-Integration-2-OriginalSpecie-1-MouseFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-1-MouseFluoxetineVsControlForStressed.html"><i class="fa fa-check"></i><b>4.3.2</b> Using original specie Gene.name</a><ul>
+<li class="chapter" data-level="4.3.2.1" data-path="3-results-3-Integration-2-OriginalSpecie-1-MouseFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-1-MouseFluoxetineVsControlForStressed.html#resultsIntegrationOriginalSpecieMouseFluoxetineVsControlForStressed"><i class="fa fa-check"></i><b>4.3.2.1</b> Mouse Fluoxetine VS Control for Stressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.2.2" data-path="3-results-3-Integration-2-OriginalSpecie-2-RatFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-2-RatFluoxetineVsControlForStressed.html"><i class="fa fa-check"></i><b>4.3.2.2</b> Rat Stress Alone VS Stress Fluoxetine in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.2.3" data-path="3-results-3-Integration-2-OriginalSpecie-3-RatMouseFluoxetineVsControlForStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-3-RatMouseFluoxetineVsControlForStressed.html"><i class="fa fa-check"></i><b>4.3.2.3</b> Rat+Mouse Fluoxetine VS Control for Stressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.2.4" data-path="3-results-3-Integration-2-OriginalSpecie-4-MouseFluoxetineVsControlForNoStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-4-MouseFluoxetineVsControlForNoStressed.html"><i class="fa fa-check"></i><b>4.3.2.4</b> Mouse Fluoxetine VS Control for NoStressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.2.5" data-path="3-results-3-Integration-2-OriginalSpecie-5-RatFluoxetineVsControlForNoStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-5-RatFluoxetineVsControlForNoStressed.html"><i class="fa fa-check"></i><b>4.3.2.5</b> Rat Fluoxetine VS Control for NoStressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.2.6" data-path="3-results-3-Integration-2-OriginalSpecie-6-RatMouseFluoxetineVsControlForNoStressed.html"><a href="3-results-3-Integration-2-OriginalSpecie-6-RatMouseFluoxetineVsControlForNoStressed.html"><i class="fa fa-check"></i><b>4.3.2.6</b> Rat+Mouse Fluoxetine VS Control for NoStressed in Dentate Gyrus</a></li>
+<li class="chapter" data-level="4.3.2.7" data-path="3-results-3-Integration-2-OriginalSpecie-7-RatMouseFluoxetineVsControlForStressedAndNoStress.html"><a href="3-results-3-Integration-2-OriginalSpecie-7-RatMouseFluoxetineVsControlForStressedAndNoStress.html"><i class="fa fa-check"></i><b>4.3.2.7</b> Rat+Mouse Fluoxetine VS Control for Stressed and no stressed in Dentate Gyrus</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">ANTARES</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="resultsRnaseqSRP084288DEA" class="section level4">
+<h4><span class="header-section-number">4.2.3.2</span> DEA</h4>
+<div id="resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariate" class="section level5">
+<h5><span class="header-section-number">4.2.3.2.1</span> Fluoxetine VS Control with Tissue as covariate</h5>
+<div id="resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariateApeglm" class="section level6">
+<h6><span class="header-section-number">4.2.3.2.1.1</span> Apeglm shrinkage</h6>
+<pre><code>## [1] &quot;Intercept&quot;                                      
+## [2] &quot;tissue_region_Hippocampus_vs_Frontal.cortex&quot;    
+## [3] &quot;tissue_region_Pituitary.gland_vs_Frontal.cortex&quot;
+## [4] &quot;group_Fluoxetine_vs_Control&quot;                    
+## [5] &quot;group_Acupuncture_vs_Control&quot;                   
+## [6] &quot;group_model.of.depression_vs_Control&quot;</code></pre>
+<!--
+This template needs 
+* chunk_label_prefix
+* d = dds
+* r = res
+
+It should be called from 
+applyPostDeseq2Template()
+-->
+<div class="figure"><span id="fig:resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariateApeglmKnitPostDeseq2PlotVolcanoDeseq2"></span>
+<img src="_main_files/figure-html/resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariateApeglmKnitPostDeseq2PlotVolcanoDeseq2-1.png" alt="Volcano plot. 104 significant genes according to Pvalue &lt; 0.05 and |log2FoldChange| &gt; 0.5 are highlighted in red and available in [this table](DT/resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariateApeglmKnitPostDeseq2PlotVolcanoDeseq2.html)." width="672" />
+<p class="caption">
+Figure 4.48: Volcano plot. 104 significant genes according to Pvalue &lt; 0.05 and |log2FoldChange| &gt; 0.5 are highlighted in red and available in <a href="DT/resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariateApeglmKnitPostDeseq2PlotVolcanoDeseq2.html">this table</a>.
+</p>
+</div>
+<ul>
+<li>Enrichr results for all deregulated genes are available <a href="https://maayanlab.cloud/Enrichr/enrich?dataset=0a1024428b9df235a3f57e22f72331ac">here</a></li>
+<li>Enrichr results for upregulated genes are available <a href="https://maayanlab.cloud/Enrichr/enrich?dataset=de1c77bedc9982f1dc0580077baf6dbd">here</a></li>
+<li>Enrichr results for downregulated genes are available <a href="https://maayanlab.cloud/Enrichr/enrich?dataset=5751255d6cccdca26d901bc6802c30b1">here</a></li>
+<li>g:Profiler results for all deregulated genes are available <a href="https://biit.cs.ut.ee/gplink/l/lg3zK4gnTj">here</a></li>
+<li>g:Profiler results for all upregulated genes are available <a href="https://biit.cs.ut.ee/gplink/l/AaudwvPqQV">here</a></li>
+<li>g:Profiler results for all downregulated genes are available <a href="https://biit.cs.ut.ee/gplink/l/vJmV5piCQg">here</a></li>
+<li>g:Profiler results for comparison of the three queries above are available <a href="https://biit.cs.ut.ee/gplink/l/hieGXKeKRq">here</a></li>
+</ul>
+<p><img src="_main_files/figure-html/resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariatesApeglmDefaultSettingsHeatmapRaw-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/resultsRnaseqSRP084288FluoxetineVsControlWithTissueAsCovariatesApeglmDefaultSettingsHeatmapZscore-1.png" width="672" /></p>
+<p>This heatmap was used to check fold change sign is correct for this design: We can see ASAP1 is overexpressed with Fluoxetine, which can be consistently seen on integration dotplots for the design <code>GSE84185-FluoxetineVsControlForNoStressedInDentateGyrus</code>.</p>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="3-results-1-Rnaseq-1-SRP084288-1-PCA.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="3-results-1-Rnaseq-1-SRP084288-3-DEA-1-FluoxetineVsControlWithTissueAsCovariate-2-Normal.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": false,
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
